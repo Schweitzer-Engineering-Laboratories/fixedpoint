@@ -1,0 +1,13 @@
+# Stuff from tests
+**/*.log
+**/*.stim
+**/*.txt
+**/*.asv
+tests/COVERAGE/*
+tests/MYPY/*
+tests/.noseids
+.coverage
+
+# Stuff from documentation
+docs/build/*
+**/__pycache__/*

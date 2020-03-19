@@ -1,0 +1,10 @@
+@import '../classic.css';
+
+div.example {
+    background-color: #e5ffe5;
+    border: 1px solid #66ff66;
+}
+
+.example code {
+    background: #b3ffb3;
+}
