@@ -1,8 +1,8 @@
-###############################################################################
-`FixedPoint` Context Management
-###############################################################################
-
 ..  currentmodule:: fixedpoint
+
+###############################################################################
+Context Management
+###############################################################################
 
 The :class:`.FixedPoint` class offers richly-featured context management (see
 :pep:`343`) that allows for some unique approaches to programatic arithmetic.
@@ -14,7 +14,7 @@ Three functions are utilized:
 
 :meth:`.FixedPoint.__call__` allows properties to be assigned in the
 :pyref:`with statement <compound_stmts.html#with>` at the start of the context;
-this is called context preload.
+this is called context initialization.
 
 :meth:`.FixedPoint.__enter__` save off the current state of the
 :class:`.FixedPoint` and assigns the properties specified by
@@ -36,11 +36,13 @@ in which changes to the original object can be undone:
     >>> x = FixedPoint(1/9, signed=1)
     >>> x.qformat
     'Q1.54'
+
     >>> with x: # save off the current state of x
     ...    x.signed = 0
     ...    x.m = 42
     ...    x.qformat # show the changes that were made within the context
     'UQ42.54'
+
     >>> x.qformat # outisde of the with context, original x is restored
     'Q1.54'
 
@@ -58,16 +60,18 @@ context exit. These properties include:
 * :attr:`~.FixedPoint.implicit_cast_alert`
 * :attr:`~.FixedPoint.str_base`
 
-Even the value can be changed with :doc:`operators` or :ref:`initializers`.
+Even the value can be changed with :doc:`arithmetic` or :ref:`initializers`.
 
 ..  doctest:: context manager - basic
 
     >>> float(x)
     0.1111111111111111
+
     >>> with x:
     ...    x.from_string("0x7FFFFFAAAA5555")
     ...    float(x)
     -7.947407237862691e-08
+
     >>> float(x)
     0.1111111111111111
 
@@ -81,16 +85,19 @@ You can also rename a variable if desired.
     >>> y = FixedPoint(0.7)
     >>> x.qformat, y.qformat
     ('UQ0.54', 'UQ0.52')
+
     >>> z = x - y
     Traceback (most recent call last):
         ...
     FixedPointOverflowError: [SN1] Unsigned subtraction causes overflow.
+
     >>> with x as xtmp, y as ytmp:
     ...    xtmp.m, ytmp.m = 1, 1
     ...    xtmp.signed, ytmp.signed = 1, 1
     ...    z = x - y
     ...    xtmp.qformat, ytmp.qformat, z.qformat
     ('Q1.54', 'Q1.52', 'Q2.54')
+
     >>> x.qformat, y.qformat, z.qformat, float(round(z, 1))
     ('UQ0.54', 'UQ0.52', 'Q2.54', -0.5)
 
@@ -110,6 +117,7 @@ Context managers can be nested:
     ...             print(f'4) {x.rounding=}')
     ...         print(f'5) {x.rounding=}')
     ...     print(f'6) {x.rounding=}')
+
     >>> nest(FixedPoint(31))
     0) x.rounding='nearest'
     1) x.rounding='nearest'
@@ -120,14 +128,14 @@ Context managers can be nested:
     6) x.rounding='nearest'
 
 *******************************************************************************
-Context Preload
+Context Initialization
 *******************************************************************************
 
 In addition to saving off the current context of `FixedPoint` objects, the
-:pyref:`with statement <compound_stmts.html#with>` can also preload the new
+:pyref:`with statement <compound_stmts.html#with>` can also initialize the new
 context for you. Given ``x``, ``y``, and ``z`` below,
 
-..  doctest:: context manager - preload
+..  doctest:: context manager - initialization
 
     >>> x = FixedPoint(-1)
     >>> y = FixedPoint(1, mismatch_alert='error')
@@ -138,7 +146,7 @@ context for you. Given ``x``, ``y``, and ``z`` below,
 
 the following two code blocks accomplish the same goal:
 
-.. doctest:: context manager - preload
+.. doctest:: context manager - initialization
 
     >>> with x, y:
     ...     x.rounding = 'nearest'
@@ -147,24 +155,25 @@ the following two code blocks accomplish the same goal:
     >>> float(z)
     0.0
 
-..  doctest:: context manager - preload
+.. doctest:: context manager - initialization
 
     >>> with x(rounding='nearest', mismatch_alert='error'):
     ...     z = x + y
     >>> float(z)
     0.0
 
-Any keywordable argument from the `FixedPoint` constructor can be used in
-the context manager. All arguments to the preloader must be keyworded. The
-:meth:`~.FixedPoint.__call__` keywords can be specified in a dictionary if
+Any keywordable argument from the :class:`FixedPoint` constructor can be used in
+the context manager. All initilization arguments must be keyworded. The
+:meth:`~.FixedPoint.__call__` keywords can be specified in a :class:`dict` if
 preferred.
 
-..  doctest:: context manager - preload
+..  doctest:: context manager - initialization
 
-    >>> xprop = {'rounding': 'nearest', 'mismatch_alert': 'warning'};
-    >>> yprop = {'mismatch_alert': 'warning'};
+    >>> xprop = {'rounding': 'nearest', 'mismatch_alert': 'warning'}
+    >>> yprop = {'mismatch_alert': 'warning'}
     >>> with x(**xprop), y(**yprop):
     ...     z = x + y
+
     >>> x.rounding, x.mismatch_alert, y.rounding, y.mismatch_alert
     ('convergent', 'warning', 'nearest', 'error')
 
@@ -172,24 +181,28 @@ preferred.
 Retaining the Context
 *******************************************************************************
 
-The preloader also accepts a ``safe_retain`` keyword that, when ``True``, will
-not restore the original `FixedPoint` context as long as no exceptions occurred
-within the context.
+Context initialization also supports a ``safe_retain`` keyword that, when
+``True``, will not restore the original :class:`FixedPoint` context as long as
+no exceptions occur.
 
 ..  doctest:: context manager - safe_retain
 
     >>> x = FixedPoint(3, str_base=10)
     >>> x.qformat
     'UQ2.0'
+
     >>> with x(safe_retain=True):
     ...     x.signed = True
     Traceback (most recent call last):
         ...
     FixedPointOverflowError: Changing signedness on 3 causes overflow.
+
     >>> x.signed, x.qformat # Changes were not retained because of exception
     (False, 'UQ2.0')
+
     >>> with x(m=3, safe_retain=True):
     ...     x.signed = True
+
     >>> x.signed, x.qformat # Changes were retained
     (True, 'Q3.0')
 
@@ -199,7 +212,8 @@ this is exactly how :meth:`.FixedPoint.resize` is implemented:
 
 ..  _resize_implementation:
 
-..  literalinclude:: ..\..\fixedpoint\fixedpoint.py
+..  literalinclude:: fixedpoint
+    :language: python
     :start-at: def resize
     :end-before: def
 

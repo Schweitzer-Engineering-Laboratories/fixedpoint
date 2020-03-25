@@ -390,7 +390,7 @@ def test_left_shift():
             x.from_string(hex(bits))
 
             # Account for sign extension
-            if x.signed and x['msb']:
+            if x.signed and x.bits['msb']:
                 # Get the negative representation
                 expected = bits & (posmask := (bitmask >> 1))
                 expected -= bits & (posmask + 1)
@@ -443,7 +443,7 @@ def test_right_shift():
             x.from_string(hex(bits))
 
             # Account for sign extension
-            if x.signed and x['msb']:
+            if x.signed and x.bits['msb']:
                 # Get the negative representation
                 expected = bits & (posmask := (bitmask >> 1))
                 expected -= bits & (posmask + 1)
@@ -515,7 +515,7 @@ def test_bitwise_or():
     for init, args, kwargs, s, m, n, bits in initstr_gen():
         x = uut.FixedPoint(init, *args)
 
-        pexp = (bitmask := x.bits | prev.bits) & prev.bitmask
+        pexp = (bitmask := (x.bits | prev.bits)) & prev.bitmask
         xexp = bitmask & x.bitmask
 
         # FixedPoint | FixedPoint
@@ -633,7 +633,7 @@ def test_negation():
 
         # Overflow condition: maximum negative
         m_exp = x.m
-        if x['msb'] == 1 and x[1:] == 0:
+        if x.bits['msb'] == 1 and x.bits[1:] == 0:
             m_exp += 1
             if x.overflow_alert == 'error':
                 with nose.tools.assert_raises_regex(uut.FixedPointOverflowError, errmsg[0] % (x.m, x.n)):

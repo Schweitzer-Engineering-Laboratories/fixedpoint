@@ -22,7 +22,7 @@ uut.FixedPoint.enable_logging()
 
 # Generate random seed
 seed = random.getrandbits(31)
-random.seed(seed)
+random.seed(seed)  #; random.seed(42)
 UTLOG.info("RANDOM SEED: %d", seed, **LOGID)
 
 def setup_logging():

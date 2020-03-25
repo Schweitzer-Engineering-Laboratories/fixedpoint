@@ -10,7 +10,7 @@ conversion (via ``str()``) or a more advanced string formatting using a
 :pylib:`standard format specifier <string.html#format-specification-mini-language>`
 with :meth:`str.format`, :func:`format`, or
 :pyref:`f-strings <lexical_analysis.html#f-strings>`. These methods are
-described melow.
+described below.
 
 ..  _str_conversion:
 
@@ -49,15 +49,15 @@ String Formatting
     :start-after: STRING FORMATTING INCLUDE START
     :end-before: STRING FORMATTING INCLUDE END
 
-``str()`` Output
+str() Output
 ===============================================================================
 
 As described :ref:`above <str_conversion>`, ``str()`` generates a :class:`str`
 from the :attr:`.FixedPoint.bits` in the base specified by
 :attr:`.FixedPoint.str_base`. This can be further formatted with the
 :pylib:`format specification mini language
-<string.html#format-specification-mini-language>` using the :const:`format_spec`
-:const:`type` ``'s'``.
+<string.html#format-specification-mini-language>` using the ``format_spec``
+``type`` ``'s'``.
 
 The example below uses a :pyref:`formatted string literal (or f-string)
 <lexical_analysis.html#f-strings>` to further format the output of ``str()``.
@@ -67,8 +67,10 @@ The example below uses a :pyref:`formatted string literal (or f-string)
     >>> x = FixedPoint(0b1010_0101_1111, str_base=2)
     >>> str(x) # This is the str() output
     '101001011111'
+
     >>> f"{x:_^16s}" # Center str(x) in a field of underscores 16 characters wide
     '__101001011111__'
+
     >>> x.str_base = 16
     >>> f"{x:_^16s}" # Same thing but uses hex instead of binary due to str_base
     '______a5f_______'
@@ -96,7 +98,7 @@ The remaining examples will be done using :pyref:`f-strings
 Q Format
 ===============================================================================
 
-Using the :const:`format_spec` :const:`type` ``'q'`` allows you to format the
+Using the ``format_spec`` ``type`` ``'q'`` allows you to format the
 :attr:`.FixedPoint.qformat` output as a string.
 
 ..  doctest:: format "q"
@@ -104,13 +106,14 @@ Using the :const:`format_spec` :const:`type` ``'q'`` allows you to format the
     >>> a = FixedPoint(-12345.678)
     >>> f"{a:q}"
     'Q15.36'
+
     >>> f"{a: ^10q}"
     '  Q15.36  '
 
-``FixedPoint.bits``
+FixedPoint.bits
 ===============================================================================
 
-Using the :const:`format_spec` :const:`type` ``'b'``, ``'o'``, ``'d'``,
+Using the ``format_spec`` ``type`` ``'b'``, ``'o'``, ``'d'``,
 ``'x'``, or ``'X'`` allow you to format the :attr:`.FixedPoint.bits` as an
 :class:`int`.
 
@@ -119,17 +122,19 @@ Using the :const:`format_spec` :const:`type` ``'b'``, ``'o'``, ``'d'``,
     >>> a = FixedPoint(0b1111_0000_1011, m=14)
     >>> f"{a:#0{2 + len(a) // 4 + len(a)}_b}" # add 2 for radix, // 4 for seperators
     '0b00_1111_0000_1011'
+
     >>> f"{a:010,d}"
     '00,003,851'
+
     >>> f"{a:=^+#10X}"
     '==+0XF0B=='
 
 Integer and Fractional Bits
 ===============================================================================
 
-Using the :const:`format_spec` :const:`type` ``'m'`` or ``'n'`` allows you
+Using the ``format_spec`` ``type`` ``'m'`` or ``'n'`` allows you
 to format the integer and fractional bits as an :class:`int`. Precede these
-:const:`type`\ s with other standard types like ``'b'``, ``'o'``, ``'d'``,
+``type``\ s with other standard types like ``'b'``, ``'o'``, ``'d'``,
 ``'n'``, ``'x'``, or ``'X'``.
 
 ..  doctest:: format integer and fractional
@@ -138,10 +143,10 @@ to format the integer and fractional bits as an :class:`int`. Precede these
     >>> f"{a:#0{a.m+2}bm}.{a:0{a.n}bn}" # Show the binary point
     '0b0110.01100'
 
-:class:`float` Equivalent
+Float Equivalent
 ===============================================================================
 
-Using the :const:`format_spec` :const:`type` ``'e'``, ``'E'``, ``'f'``,
+Using the ``format_spec`` ``type`` ``'e'``, ``'E'``, ``'f'``,
 ``'F'``, ``'g'``, ``'G'``, or ``'%'`` allow you to format the
 :class:`FixedPoint` as a :class:`float`.
 
@@ -150,6 +155,7 @@ Using the :const:`format_spec` :const:`type` ``'e'``, ``'E'``, ``'f'``,
     >>> a = FixedPoint(1.125, rounding='up')
     >>> f"{a:#0{2+a.m}bm}.{a:0{a.n}bn} ==> {a:.3f}"
     '0b1.001 ==> 1.125'
+
     >>> f"{a:.2f}" # Show 2 decimal points
     '1.12'
 
@@ -164,10 +170,9 @@ Using the :const:`format_spec` :const:`type` ``'e'``, ``'E'``, ``'f'``,
 
     >>> f"{a:.3%}"
     '112.500%'
+
     >>> f"{a - 1:.2%}"
     '12.50%'
-
-..  doctest:: format float
 
     >>> import sys
     >>> b = FixedPoint(2**sys.float_info.min_exp)

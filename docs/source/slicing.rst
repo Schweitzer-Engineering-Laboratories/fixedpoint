@@ -4,16 +4,16 @@ Bit Slicing
 
 ..  currentmodule:: fixedpoint
 
-Sometimes you want to access only certain bits of a `FixedPoint` number. The
-square brackets operator (see :meth:`.FixedPoint.__getitem__`) makes this
-very simple.
+Sometimes you want to access only certain bits of a :class:`FixedPoint` number.
+The :attr:`.FixedPoint.bits` attribute returns a :class:`FixedPointBits` object,
+which is an :class:`int` that support square bracket access.
 
 *******************************************************************************
 Bit Random Access
 *******************************************************************************
 
-One or more contiguous bits in the `FixedPoint` number can be accessed with
-an :class:`int` or :class:`slice` key.
+One or more contiguous bits in the :class:`FixedPointBits` can be accessed
+with an :class:`int` or :class:`slice` key.
 
 ..  _single_bit_slice:
 
@@ -25,9 +25,9 @@ index ``m+n-1`` and the LSb being index 0.
 
 ..  doctest:: slice single bit
 
-    >>> x = FixedPoint('0b001001', signed=0, m=3, n=3)
-    >>> x[3]
-    1
+    >>> x = FixedPoint('0b001001', signed=0, m=3, n=3, str_base=2)
+    >>> bin(x.bits), x.bits[3]
+    ('0b1001', 1)
 
 You can also access a single bit using a :class:`slice` when start and stop
 values are equal. The slice step must be either
@@ -40,9 +40,9 @@ values are equal. The slice step must be either
 ..  doctest:: slice single bit
 
     >>> x = FixedPoint('0b001000', signed=0, m=3, n=3)
-    >>> x[3:3:-1] # the middle '1' with a descending range
+    >>> x.bits[3:3:-1] # the middle '1' with a descending range
     1
-    >>> x[2:2:1] # the middle '1' with an ascending range
+    >>> x.bits[2:2:1] # the middle '1' with an ascending range
     1
 
 Attempting to access a single bit in this fashion (the slice start and stop
@@ -50,7 +50,7 @@ are equal) without specifying a step results in an error.
 
 ..  doctest:: slice single bit
 
-    >>> x[3:3]
+    >>> x.bits[3:3]
     Traceback (most recent call last):
         ...
     IndexError: Step must be 1 or -1 for equivalent start and stop bound 3.
@@ -66,13 +66,13 @@ ascending and descending ranges are supported.
 ..  doctest:: multi-bit slicing
 
     >>> x = FixedPoint(0b0001100, m=7)
-    >>> x[3:2] # Access the middle two 1s using a descending range
+    >>> x.bits[3:2] # Access the middle two 1s using a descending range
     3
-    >>> x[3:2:-1] # The step can be -1 for clarity but is unnecessary
+    >>> x.bits[3:2:-1] # The step can be -1 for clarity but is unnecessary
     3
-    >>> x[3:4] # Access the middle two 1s using an ascending range
+    >>> x.bits[3:4] # Access the middle two 1s using an ascending range
     3
-    >>> x[3:4:1] # The step can be +1 for clarity but is unnecessary
+    >>> x.bits[3:4:1] # The step can be +1 for clarity but is unnecessary
     3
 
 When a step is used that is not 1 or -1, or when the start/stop index is
@@ -81,9 +81,9 @@ negative, the slice accesses the bits as if they were a :class:`str`.
 ..  doctest:: multi-bit slicing
 
     >>> x = FixedPoint(0b100_100_100_100)
-    >>> x[::3] # Get every 3rd bit starting from the first
+    >>> x.bits[::3] # Get every 3rd bit starting from the first
     15
-    >>> bin(x[:-6]) # Get the last 6 bits
+    >>> bin(x.bits[:-6]) # Get the last 6 bits
     '0b100100'
 
 ..  _bit_mapping:
@@ -110,25 +110,59 @@ an unsigned number), a :exc:`KeyError` is raised.
 
     >>> intonly = signed = FixedPoint("0b1110", 1, 4, 0)
     >>> fraconly = unsigned = FixedPoint("0b0001", 0, 0, 4)
-    >>> intonly['m']
+    >>> intonly.bits['m']
     14
-    >>> fraconly['int']
+    >>> fraconly.bits['int']
     Traceback (most recent call last):
         ...
     KeyError: Invalid bit specification 'int' for UQ0.4.
-    >>> intonly['n']
+    <BLANKLINE>
+    >>> intonly.bits['n']
     Traceback (most recent call last):
         ...
     KeyError: Invalid bit specification 'n' for Q4.0.
-    >>> signed['sign']
+    >>> signed.bits['sign']
     1
-    >>> (-signed)['s']
+    >>> (-signed).bits['s']
     0
-    >>> unsigned['sign']
+    >>> unsigned.bits['sign']
     Traceback (most recent call last):
         ...
     KeyError: Invalid bit specification 'sign' for UQ0.4.
-    >>> intonly['msb'], intonly['lsb']
+    <BLANKLINE>
+    >>> intonly.bits['msb'], intonly.bits['lsb']
     (1, 0)
-    >>> fraconly['msb'], fraconly['lsb']
+    >>> fraconly.bits['msb'], fraconly.bits['lsb']
     (0, 1)
+
+When the mappings are uppercased, a :class:`str` type is returned corresponding
+to the binary bits.
+
+..  doctest:: mappings
+
+    >>> intonly = signed = FixedPoint("0b1110", 1, 4, 0)
+    >>> fraconly = unsigned = FixedPoint("0b0001", 0, 0, 4)
+    >>> intonly.bits['M']
+    '1110'
+    >>> fraconly.bits['INT']
+    Traceback (most recent call last):
+        ...
+    KeyError: Invalid bit specification 'INT' for UQ0.4.
+    <BLANKLINE>
+    >>> intonly.bits['N']
+    Traceback (most recent call last):
+        ...
+    KeyError: Invalid bit specification 'N' for Q4.0.
+    >>> signed.bits['SIGN']
+    '1'
+    >>> (-signed).bits['S']
+    '0'
+    >>> unsigned.bits['SIGN']
+    Traceback (most recent call last):
+        ...
+    KeyError: Invalid bit specification 'SIGN' for UQ0.4.
+    <BLANKLINE>
+    >>> intonly.bits['MSB'], intonly.bits['LSB']
+    ('1', '0')
+    >>> fraconly.bits['MSB'], fraconly.bits['LSB']
+    ('0', '1')

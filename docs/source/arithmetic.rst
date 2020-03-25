@@ -1,16 +1,16 @@
-###############################################################################
-`FixedPoint` Arithmetic
-###############################################################################
-
 ..  currentmodule:: fixedpoint
+
+###############################################################################
+Arithmetic
+###############################################################################
 
 ..  _arithmetic_addition:
 
 *******************************************************************************
-`FixedPoint` Addition
+Addition
 *******************************************************************************
 
-`FixedPoint` addition using the ``+`` or ``+=`` operator is always
+:class:`FixedPoint` addition using the ``+`` or ``+=`` operator is always
 full-precision; that is, there is always bit growth.
 
 ..  table:: Addition Bit Growth Summary
@@ -83,6 +83,7 @@ Mixed Signedness
     >>> z = s + u
     WARNING [SN1]: Non-matching rounding behaviors ['convergent', 'nearest'].
     WARNING [SN1]: Using 'convergent'.
+
     >>> print(f'   {s:q}\n+ {u:q}\n-------\n   {z:q}')
        Q4.4
     + UQ3.5
@@ -113,7 +114,7 @@ bits.
 
     print(f"{int(accum)} in {accum:q} is\n0b{accum:_b}")
 
-Summing the maximum negative Q18.0 number 64 times produces a Q24.0 that is
+Summing the maximum negative *Q18.0* number 64 times produces a *Q24.0* that is
 clamped to the maximum negative value. Note that ``accum.overflow_alert`` was
 set to ``'error'``, thus we would have been informed had overflow occurred.
 
@@ -125,10 +126,10 @@ set to ``'error'``, thus we would have been informed had overflow occurred.
 ..  _arithmetic_subtraction:
 
 *******************************************************************************
-`FixedPoint` Subtraction
+Subtraction
 *******************************************************************************
 
-`FixedPoint` subtraction using the ``-`` or ``-=`` operator is always
+:class:`FixedPoint` subtraction using the ``-`` or ``-=`` operator is always
 full-precision; that is, there is always bit growth.
 
 ..  table:: Subtraction Bit Growth Summary
@@ -191,11 +192,13 @@ Overflow occurs when subtrahend > minuend.
     >>> y -= x
     WARNING [SN2]: Unsigned subtraction causes overflow.
     WARNING [SN2]: Clamped to minimum.
+
     >>> print(f'  {q_presub}\n- {x:q}\n-------\n  {y:q}')
       UQ3.5
     - UQ8.4
     -------
       UQ9.5
+
     >>> float(y)
     0.0
 
@@ -212,6 +215,7 @@ Signed
     - Q5.8
     ------
      Q10.8
+
     >>> float(a)
     263.01953125
 
@@ -223,6 +227,7 @@ Signed
     - Q9.6
     ------
      Q10.8
+
     >>> float(b)
     -263.01953125
     >>> a == -b
@@ -244,11 +249,13 @@ Mixed Signedness
     >>> x = u - s
     WARNING [SN2]: Non-matching rounding behaviors ['convergent', 'nearest'].
     WARNING [SN2]: Using 'convergent'.
+
     >>> print(f' {u:q}\n- {s:q}\n------\n  {x:q}')
      UQ2.0
     - Q2.0
     ------
       Q4.0
+
     >>> float(x)
     0.0
 
@@ -263,26 +270,25 @@ revert back to the original Q format if needed.
     >>> y = s - u
     WARNING [SN1]: Non-matching rounding behaviors ['convergent', 'nearest'].
     WARNING [SN1]: Using 'convergent'.
+
     >>> print(f'   {s:q}\n- {u:q}\n-------\n   {y:q}')
        Q2.0
     - UQ2.0
     -------
        Q4.0
-    >>> float(y)
-    0.0
-    >>> y.clamp(s.m)
-    >>> y.qformat
-    'Q2.0'
+
+    >>> float(y), clamp(y, s.m).qformat
+    (0.0, 'Q2.0')
 
 Overflow is not possible with mixed signedness subtraction.
 
 ..  _arithmetic_multiplication:
 
 *******************************************************************************
-`FixedPoint` Multiplication
+Multiplication
 *******************************************************************************
 
-`FixedPoint` multiplication using the ``*`` or ``*=`` operator is always
+:class:`FixedPoint` multiplication using the ``*`` or ``*=`` operator is always
 full-precision; that is, there is always bit growth.
 
 ..  table:: Multiplication Bit Growth Summary
@@ -337,6 +343,7 @@ Signed
     * Q3.8
     ------
       Q6.9
+
     >>> float(y)
     -10.0
 
@@ -350,6 +357,7 @@ Mixed Signedness
     >>> z = u * s
     >>> print(f"{u:.1f} * {s:.1f} = {z:.1f}")
     3.0 * -4.0 = -12.0
+
     >>> print(f' {u:q}\n* {s:q}\n------\n  {z:q}')
      UQ2.0
     * Q3.1
@@ -359,7 +367,7 @@ Mixed Signedness
 ..  _arithmetic_exponentiation:
 
 *******************************************************************************
-`FixedPoint` Exponentiation
+Exponentiation
 *******************************************************************************
 
 `FixedPoint` exponentiation using the ``**`` or ``**=`` operator is always
@@ -389,27 +397,19 @@ exponents are supported.
         ...
     TypeError: Only positive integers are supported for exponentiation.
 
-..  doctest:: exponentiation
-
     >>> x **= -2 # not allowed
     Traceback (most recent call last):
         ...
     TypeError: Only positive integers are supported for exponentiation.
-
-..  doctest:: exponentiation
 
     >>> 2**x # not allowed
     Traceback (most recent call last):
         ...
     TypeError: unsupported operand type(s) for **: 'int' and 'FixedPoint'
 
-..  doctest:: exponentiation
-
     >>> a = x**4
     >>> x.qformat, float(a), a.qformat
     ('UQ1.1', 5.0625, 'UQ4.4')
-
-..  doctest:: exponentiation
 
     >>> b = y**3
     >>> y.qformat, float(b), b.qformat
@@ -452,17 +452,18 @@ the original `FixedPoint` (as long as ``overflow_alert`` is not ``'error'``).
     >>> x.trim(ints=True) # remove unneeded leading bits
     >>> x.qformat, float(x)
     ('Q3.0', -4.0)
+
     >>> yy = -x
     WARNING [SN1]: Negating 0b100 (Q3.0) causes overflow.
     WARNING [SN1]: Adjusting Q format to Q4.0 to allow negation.
+
     >>> x.qformat, y.qformat, yy.qformat, float(yy)
     ('Q3.0', 'Q10.0', 'Q4.0', 4.0)
-
-..  doctest:: negation and absolute value
 
     >>> zz = abs(x)
     WARNING [SN1]: Negating 0b100 (Q3.0) causes overflow.
     WARNING [SN1]: Adjusting Q format to Q4.0 to allow negation.
+
     >>> x.qformat, y.qformat, zz.qformat, float(zz)
     ('Q3.0', 'Q10.0', 'Q4.0', 4.0)
 
@@ -484,6 +485,7 @@ is by use of the context manager:
     Traceback (most recent call last):
         ...
     FixedPointError: [SN1] Unsigned numbers can't be negated.
+
     >>> with x(m=x.m + 1, signed=1): # Increase integer bit width for sign
     ...     y = -x
     >>> x.qformat, y.qformat, float(y)
@@ -519,6 +521,7 @@ To shift bits left and *not* lose bits, instead multiply the number by
     >>> y = x << 4
     >>> float(y), y.qformat
     (0.0, 'UQ3.3')
+
     >>> z = x * 2**4
     >>> float(z), z.qformat
     (112.0, 'UQ8.3')
@@ -571,9 +574,11 @@ If the number of bits to shift is negative, a left shift is performed instead.
     >>> x = FixedPoint(1, m=3)
     >>> 2**-3 # Desired numerical value
     0.125
+
     >>> y = x >> 3
     >>> float(y), y.qformat
     (0.0, 'UQ3.0')
+
     >>> z = x * 2**-3
     >>> float(z), z.qformat
     (0.125, 'UQ3.3')
@@ -599,6 +604,7 @@ be the :ref:`Q format <Q_Format>` of the returned value.
     ...             f"{op} {right:>{l}s} ({right:q})\n"
     ...             f"----------{'-' * l}\n"
     ...             f"  {r:>{l}s} ({r:q})")
+
     >>> L = FixedPoint('0b100011', 0, 3, 3, str_base=2)
     >>> R = FixedPoint(0b10, str_base=2)
     >>> print(f"  L & R\n{operate(L, '&', R)}")
@@ -607,12 +613,14 @@ be the :ref:`Q format <Q_Format>` of the returned value.
     &     10 (UQ2.0)
     ----------------
       000010 (UQ3.3)
+
     >>> print(f"  R | L\n{operate(R, '|', L)}")
       R | L
           10 (UQ2.0)
     | 100011 (UQ3.3)
     ----------------
           11 (UQ2.0)
+
     >>> print(f"  L ^ R\n{operate(L, '^', R)}")
       L ^ R
       100011 (UQ3.3)
@@ -628,6 +636,7 @@ When using an :obj:`int` as an operand, the operation is performed on the
     >>> x = FixedPoint('0b100011', 1, 3, 3, str_base=2)
     >>> str(a := 7 & x)
     '000011'
+
     >>> float(a)
     0.375
 
@@ -637,8 +646,10 @@ The order of  the operands is irrelevant.
 
     >>> str(b1 := x ^ 0b110000)
     '010011'
+
     >>> str(b2 := 0b110000 ^ x)
     '010011'
+
     >>> float(b1), float(b2)
     (2.375, 2.375)
 
@@ -647,11 +658,9 @@ performing the operation.
 
 ..  doctest:: bitwise with int
 
-    >>> b1 |= 0b11111111111111111111101100 # (only the left len(b) bits are used)
-    >>> str(b1)
-    '111111'
-    >>> float(b1)
-    -0.125
+    >>> b1 |= 0b11111111111111111111101100 # (only the left len(b1) bits are used)
+    >>> str(b1), float(b1)
+    ('111111', -0.125)
 
 ..  _inversion:
 
@@ -666,5 +675,6 @@ perform bitwise inversion.
     >>> x = FixedPoint(0xAAAA)
     >>> hex(~x)
     '0x5555'
+
     >>> ~x == (x ^ x.bitmask)
     True

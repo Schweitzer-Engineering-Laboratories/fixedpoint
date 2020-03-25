@@ -23,7 +23,7 @@ def test_abs():
         kwargs['overflow_alert'] = 'ignore'
         x = uut.FixedPoint(init, *args, **kwargs)
         y = abs(x)
-        if x.signed and x['s'] == 1:
+        if x.signed and x.bits['s'] == 1:
             nose.tools.assert_equal(y, -x)
         else:
             nose.tools.assert_equal(y, x)
@@ -96,7 +96,7 @@ def test_str():
 def test_format():
     """Verify __format__
     """
-    invalids = 'ABcCDhHiIjJkKlLmMNpPQrRStTuUvVwWyYzZ'
+    invalids = 'ABcCDhHiIjJkKlLMNpPQrRStTuUvVwWyYzZ'
     errmsg = r"Unknown format code '[%s]'\." % invalids
     for init, args, kwargs, s, m, n, bits in nondefault_props_gen():
         x = uut.FixedPoint(init, *args, **kwargs)
@@ -115,21 +115,24 @@ def test_format():
         nose.tools.assert_equal(f'{x.n!a}', repr(x.n))
 
         # Add element_index and index_string
-        nose.tools.assert_equal(f'{x[0]!r}', repr(x[0]))
-        nose.tools.assert_equal(f'{x[0:1]!a}', repr(x[0:1]))
+        nose.tools.assert_equal(f'{x.bits[0]!r}', repr(x.bits[0]))
+        nose.tools.assert_equal(f'{x.bits[0:1]!a}', repr(x.bits[0:1]))
         if x.m:
-            nose.tools.assert_equal(f'{x["int"]!s}', str(x['m']))
+            nose.tools.assert_equal(f'{x.bits["int"]!s}', str(x.bits['m']))
         else:
-            nose.tools.assert_equal(f'{x["n"]!s}', str(x['frac']))
+            nose.tools.assert_equal(f'{x.bits["n"]!s}', str(x.bits['frac']))
 
         # Format specs
         nose.tools.assert_equal(f'{x:s}', str(x))
-        nose.tools.assert_equal(f'{x:b}', bin(x)[2:])
+        nose.tools.assert_equal(f'{x:#b}', bin(x))
         nose.tools.assert_equal(f'{x:d}', str(x.bits))
-        nose.tools.assert_equal(f'{x:n}', str(x.bits))
-        nose.tools.assert_equal(f'{x:o}', oct(x)[2:])
-        nose.tools.assert_equal(f'{x:x}', hex(x)[2:])
-        nose.tools.assert_equal(f'{x:X}', hex(x)[2:].upper())
+        nose.tools.assert_equal(f'{x:#o}', oct(x))
+        nose.tools.assert_equal(f'{x:#x}', hex(x))
+        nose.tools.assert_equal(f'{x:#X}', hex(x).upper())
+        if x.n:
+            nose.tools.assert_equal(f'{x:#xn}', hex(x.bits['n']))
+        if x.m:
+            nose.tools.assert_equal(f'{x:#om}', oct(x.bits['m']))
         nose.tools.assert_equal(f'{x:q}', x.qformat)
         try:
             f = float(x)

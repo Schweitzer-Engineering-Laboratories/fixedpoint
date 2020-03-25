@@ -37,6 +37,6 @@ def unpatch(patcher):
     patcher.stop()
 
 # Make warnings print to stdout instead of stderr
-fixedpoint.logging._WARNER_CONSOLE_HANDLER.stream = sys.stdout
-fixedpoint.logging._WARNER.removeFilter(alphabetize_mismatches)
-fixedpoint.logging._WARNER.addFilter(alphabetize_mismatches)
+fixedpoint.logging.WARNER_CONSOLE_HANDLER.stream = sys.stdout
+fixedpoint.logging.WARNER.removeFilter(alphabetize_mismatches)
+fixedpoint.logging.WARNER.addFilter(alphabetize_mismatches)

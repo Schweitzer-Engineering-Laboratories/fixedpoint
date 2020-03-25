@@ -1,4 +1,4 @@
-The fixedpoint python package offers several features that are widely used in
+The fixedpoint package offers several features that are widely used in
 DSP applications:
 
 * Generate fixed point numbers from
@@ -26,5 +26,5 @@ DSP applications:
   :class:`float` objects
 
 The fixedpoint package is unit-tested against MATLAB stimulus (with the fixed
-point toolbox), making :mod:`fixedpoint` a viable, accurate, and cost-free
-alternative to MATLAB.
+point toolbox), making the :mod:`fixedpoint` package a viable, accurate, and
+cost-free alternative to MATLAB.

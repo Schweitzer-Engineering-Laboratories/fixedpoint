@@ -1,13 +1,26 @@
-# Stuff from tests
+# Generally unwanted things
+**/__pycache__/*
 **/*.log
-**/*.stim
-**/*.txt
-**/*.asv
+
+# Test Collateral
+tests/**/*.stim
+tests/**/*.txt
+tests/**/*.asv
 tests/COVERAGE/*
 tests/MYPY/*
 tests/.noseids
 .coverage
 
-# Stuff from documentation
+# Documentation Collateral
 docs/build/*
-**/__pycache__/*
+docs/source/fixedpoint
+
+# Virtual Environment Collateral
+pyvenv.cfg
+Lib/*
+Scripts/*
+
+# Build collateral
+build/*
+dist/*
+fixedpoint.egg-info/*

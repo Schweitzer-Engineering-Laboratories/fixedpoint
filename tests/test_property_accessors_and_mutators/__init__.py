@@ -320,7 +320,7 @@ def test_m():
             nose.tools.assert_equal(len(logs), 2)
             nose.tools.assert_regex(logs[-2], errmsg[-2])
             nose.tools.assert_regex(logs[-1], errmsg[-1])
-        nose.tools.assert_equal(x['msb'], 1)
+        nose.tools.assert_equal(x.bits['msb'], 1)
         nose.tools.assert_equal(str(x).count('0'), len(x) - 1)
         nose.tools.assert_true(x.clamped)
 
@@ -337,7 +337,7 @@ def test_m():
             nose.tools.assert_equal(len(logs), 2)
             nose.tools.assert_regex(logs[-2], errmsg[-2])
             nose.tools.assert_regex(logs[-1], errmsg[-1])
-        nose.tools.assert_equal(x['msb'], 0)
+        nose.tools.assert_equal(x.bits['msb'], 0)
         nose.tools.assert_equal(str(x).count('1'), len(x) - 1)
         nose.tools.assert_true(x.clamped)
 
@@ -419,7 +419,7 @@ def test_m():
     with nose.tools.assert_raises_regex(ValueError, errmsg):
         x.m = 0
 
-    # Verify that passing in something other than a string throws an error
+    # Verify that passing in something other than an int throws an error
     errmsg = re.escape(f'Expected {type(1)}; got {type(1.0)}.')
     with nose.tools.assert_raises_regex(TypeError, errmsg):
         x.m = 1.0
@@ -446,7 +446,6 @@ def test_n():
         3.2.3 Round nearest
         3.2.4 Round up
     """
-
     errmsg = [
         r'WARNING \[SN\d+\]: {round} {post:q} causes overflow\.',
         r'WARNING \[SN\d+\]: {overflow} maximum\.',
@@ -471,7 +470,7 @@ def test_n():
         x = uut.FixedPoint(init := 2 * random.random() - 1, str_base=2)
         s, m, n = x.signed, x.m, x.n
         x.n += (nbits := random.randrange(10) + 1)
-        nose.tools.assert_equal(x[nbits-1 : 0 : -1], 0)
+        nose.tools.assert_equal(x.bits[nbits-1: 0: -1], 0)
 
         # Test case 2.1: Verify no changes when n doesn't change
         pre = str(x)
@@ -513,7 +512,7 @@ def test_n():
         with nose.tools.assert_raises_regex(ValueError, errmsg[3]):
             x.n = -random.randrange(100) - 1
 
-    # Verify that passing in something other than a string throws an error
+    # Verify that passing in something other than an int throws an error
     errmsg = re.escape(f'Expected {type(1)}; got {type(1.0)}.')
     with nose.tools.assert_raises_regex(TypeError, errmsg):
         x.n = 1.0
@@ -731,18 +730,18 @@ def test_getitem():
             # Bit index out of range
             errmsg = f"Bit {L} does not exist in {'' if s else 'U'}Q{m}\\.{n} format\\."
             with nose.tools.assert_raises_regex(IndexError, errmsg):
-                x[L]
+                x.bits[L]
             errmsg = f"Bit -{L+1} does not exist in {'' if s else 'U'}Q{m}\\.{n} format\\."
             with nose.tools.assert_raises_regex(IndexError, errmsg):
-                x[-L-1]
+                x.bits[-L-1]
 
             # Not an int, str, or slice
             errmsg = "<class 'float'> not supported\\."
             with nose.tools.assert_raises_regex(TypeError, errmsg):
-                x[1.2]
+                x.bits[1.2]
 
             # Access individual bits as a std_logic_vector(L-1 downto 0)
-            nose.tools.assert_equal(x[i] << i, bits & 2**i, f'bit {i}')
+            nose.tools.assert_equal(x.bits[i] << i, bits & 2**i, f'bit {i}')
 
             # Access a slice as a std_logic_vector
             for hi in range(i, L):
@@ -751,83 +750,61 @@ def test_getitem():
                 shift = lo
 
                 # Descending
-                nose.tools.assert_equal(x[hi : lo : -1 if lo == hi else None], (bits & (mask << shift)) >> i, f'{hi} downto {lo}')
+                nose.tools.assert_equal(x.bits[hi : lo : -1 if lo == hi else None],
+                                        (bits & (mask << shift)) >> i,
+                                        f'{hi} downto {lo}')
 
                 # Ascending
                 lo, hi = -hi + L-1, -lo + L-1
-                nose.tools.assert_equal(x[lo : hi : 1 if lo == hi else None], (bits & (mask << shift)) >> i, f'{lo} to {hi}')
+                nose.tools.assert_equal(x.bits[lo : hi : 1 if lo == hi else None],
+                                       (bits & (mask << shift)) >> i,
+                                       f'{lo} to {hi}')
 
                 # Equal start/stop but no direction
                 if lo == hi:
                     errmsg = r'Step must be 1 or -1 for equivalent start and stop bound %d\.' % hi
                     with nose.tools.assert_raises_regex(IndexError, errmsg):
-                        x[lo : hi]
+                        x.bits[lo : hi]
 
                 # Python string
                 if i:
-                    nose.tools.assert_equal(x[-i], (bits & 2**(i-1)) >> (i-1), f'bit -{i}')
-                    nose.tools.assert_equal(x[-i:], bits & (2**i-1), f'bit -{i}:')
+                    nose.tools.assert_equal(x.bits[-i], (bits & 2**(i-1)) >> (i-1), f'bit -{i}')
+                    nose.tools.assert_equal(x.bits[-i:], bits & (2**i-1), f'bit -{i}:')
 
             # Bit masks
-            nose.tools.assert_equal(x['lsb'], bits % 2)
+            nose.tools.assert_equal(x.bits['lsb'], bits % 2)
 
             if m:
-                nose.tools.assert_equal(x['m'], bits >> n, 'm')
-                nose.tools.assert_equal(x['int'], bits >> n, 'int')
+                nose.tools.assert_equal(x.bits['m'], bits >> n, 'm')
+                nose.tools.assert_equal(x.bits['int'], bits >> n, 'int')
             else:
-                errmsg = f"Invalid bit specification 'm' for UQ0\\.{n}\\."
+                errmsg = f"Invalid bit specification 'm' for UQ0\\.{n} format\\."
                 with nose.tools.assert_raises_regex(KeyError, errmsg):
-                    x['m']
+                    x.bits['m']
                 errmsg = errmsg.replace("'m'", "'int'")
                 with nose.tools.assert_raises_regex(KeyError, errmsg):
-                    x['int']
+                    x.bits['int']
 
             if n:
-                nose.tools.assert_equal(x['n'], bits & (2**n-1), 'n')
-                nose.tools.assert_equal(x['frac'], bits & (2**n-1), 'frac')
+                nose.tools.assert_equal(x.bits['n'], bits & (2**n-1), 'n')
+                nose.tools.assert_equal(x.bits['frac'], bits & (2**n-1), 'frac')
             else:
-                errmsg = f"Invalid bit specification 'n' for {'' if s else 'U'}Q{m}\\.0\\."
+                errmsg = f"Invalid bit specification 'n' for {'' if s else 'U'}Q{m}\\.0 format\\."
                 with nose.tools.assert_raises_regex(KeyError, errmsg):
-                    x['n']
+                    x.bits['n']
                 errmsg = errmsg.replace("'n'", "'frac'")
                 with nose.tools.assert_raises_regex(KeyError, errmsg):
-                    x['frac']
+                    x.bits['frac']
 
             if s:
-                nose.tools.assert_equal(x['s'], bits >> (L-1), 's')
-                nose.tools.assert_equal(x['sign'], bits >> (L-1), 'sign')
-                nose.tools.assert_equal(x['msb'], x['s'], 'msb')
+                nose.tools.assert_equal(x.bits['s'], bits >> (L-1), 's')
+                nose.tools.assert_equal(x.bits['sign'], bits >> (L-1), 'sign')
+                nose.tools.assert_equal(x.bits['msb'], x.bits['s'], 'msb')
             else:
-                errmsg = f"Invalid bit specification 's' for UQ{m}\\.{n}\\."
+                errmsg = f"Invalid bit specification 's' for UQ{m}\\.{n} format\\."
                 with nose.tools.assert_raises_regex(KeyError, errmsg):
-                    x['s']
+                    x.bits['s']
                 errmsg = errmsg.replace("'s'", "'sign'")
                 with nose.tools.assert_raises_regex(KeyError, errmsg):
-                    x['sign']
-                nose.tools.assert_equal(x['msb'], bits >> (L-1), 'msb')
-
-@tools.setup(progress_bar=True)
-def test_iter():
-    """Verify __iter__
-    """
-    for _ in tools.test_iterator():
-        s = random.randrange(2)
-        m = random.randrange(s, 500)
-        n = random.randrange(m == 0, 500)
-        bits = random.getrandbits(m + n)
-        x = uut.FixedPoint(hex(bits), s, m, n)
-        iterbits = [int(bit) for bit in bin(bits)[2:].zfill(m + n)]
-        nose.tools.assert_list_equal(list(x), iterbits)
-
-@tools.setup(progress_bar=True)
-def test_reversed():
-    """Verify __reversed__
-    """
-    for _ in tools.test_iterator():
-        s = random.randrange(2)
-        m = random.randrange(s, 500)
-        n = random.randrange(m == 0, 500)
-        bits = random.getrandbits(m + n)
-        x = uut.FixedPoint(hex(bits), s, m, n)
-        iterbits = [int(bit) for bit in bin(bits)[2:].zfill(m + n)]
-        nose.tools.assert_list_equal(list(reversed(x)), iterbits[::-1])
+                    x.bits['sign']
+                nose.tools.assert_equal(x.bits['msb'], bits >> (L-1), 'msb')

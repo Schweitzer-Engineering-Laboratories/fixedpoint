@@ -1,0 +1,5 @@
+@import './theme.css';
+
+.wy-side-nav-search>div.version {
+    color: #5d244c;
+}

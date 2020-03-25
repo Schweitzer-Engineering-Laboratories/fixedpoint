@@ -6,7 +6,7 @@ import re
 import sys
 from pathlib import Path
 import struct
-from typing import Tuple, Dict, Any, Union
+from typing import Tuple, Dict, Any, Union, Iterator
 
 from ..init import (
     uut,
@@ -20,7 +20,7 @@ from .. import tools
 # FLOAT TESTS
 ###############################################################################
 @nose.tools.nottest
-def initfloat_gen() -> Tuple[float, Tuple[Any, ...], Dict[str, Any], bool, int, int, int]:
+def initfloat_gen() -> Iterator[Tuple[Any, ...]]:
     """Generates floats. Return style is:
     (init, *args, **kwargs, signed, m, n, bits)
     """
@@ -114,22 +114,23 @@ def test_initfloat_partial_q():
         nose.tools.assert_less_equal(x.n, n, sn)
         nose.tools.assert_in(bin(x)[2:], binbits[2:], sn)
 
+
+class NonFloatLike:
+    def __init__(self, val):
+        self.val = float(val)
+    def __repr__(self):
+        return f"{self.__class__.__name__}({self.val!r})"
+
+class FloatLike(NonFloatLike):
+    def __float__(self):
+        return self.val
+
 @nose.tools.nottest
 @tools.setup(progress_bar=True)
 def test_initfloatlike():
     """Verify FixedPoint(float): floatable type
     """
     sys.stderr.write(f'\b\b\b\b\b: floatable type ... ')
-
-    errmsg = r"Unsupported type [^;]+; cannot convert to float\."
-    class NonFloatLike:
-        def __init__(self, val):
-            self.val = float(val)
-        def __repr__(self):
-            return f"{self.__class__.__name__}({self.val!r})"
-    class FloatLike(NonFloatLike):
-        def __float__(self):
-            return self.val
 
     ref = {}
     for nbit in tools.test_iterator():
@@ -174,9 +175,67 @@ def test_initfloatlike():
         nose.tools.assert_less_equal(x.n, n, sn)
         nose.tools.assert_in(bin(x)[2:], binbits[2:], sn)
 
-        # For weird data types that can't be converted to float
-        with nose.tools.assert_raises_regex(TypeError, errmsg):
-            uut.FixedPoint(NonFloatLike(init), **kwargs)
+@nose.tools.nottest
+@tools.setup(progress_bar=False)
+def test_initnotfloatable():
+    """Verify FixedPoint(float): non-floatable type
+    """
+    sys.stderr.write(f'\b\b\b\b\b: non-floatable type ... ')
+
+    # For weird data types that can't be converted to float
+    errmsg = r"Unsupported type [^;]+; cannot convert to float\."
+    with nose.tools.assert_raises_regex(TypeError, errmsg):
+        uut.FixedPoint(NonFloatLike(random.random()))
+
+
+@nose.tools.nottest
+@tools.setup(progress_bar=True)
+def test_initfloat_minmax():
+    """Verify FixedPoint(float) with clamp
+    """
+    overflows = [x.name for x in uut.properties.Overflow]
+    sys.stderr.write(f'\b\b\b\b\b with min/max ... ')
+    for _ in tools.test_iterator():
+        L = random.randint(2, 52)
+        s = random.randrange(2)
+        m = random.randint(s, L)
+        n = L - m
+        bmax = 2**(m + n - s) - 1
+        bmin = -(bmax + 1) * s
+        lsb = 2**-n
+        props = {'overflow': random.choice(overflows)}
+        fmax = uut.FixedPoint(minimum := float(bmin * lsb), s, m, n, **props)
+        fmin = uut.FixedPoint(maximum := float(bmax * lsb), s, m, n, **props)
+        UTLOG.debug("%sQ%d.%d\n%.53f\n%.53f", '' if s else 'U', m, n,
+            minimum, maximum, **LOGID)
+
+        # Minimum and maximum value should not produce a warning or exception
+        with tools.CaptureWarnings() as warnings:
+            tools.verify_attributes(uut.FixedPoint(maximum, s, m, n, **props),
+                signed=s,
+                str_base=16,
+                rounding='convergent' if s else 'nearest',
+                overflow=props['overflow'],
+                overflow_alert='error',
+                mismatch_alert='warning',
+                implicit_cast_alert='warning',
+                m=m,
+                n=n,
+                bits=bmax,
+            )
+            tools.verify_attributes(uut.FixedPoint(minimum, s, m, n, **props),
+                signed=s,
+                str_base=16,
+                rounding='convergent' if s else 'nearest',
+                overflow=props['overflow'],
+                overflow_alert='error',
+                mismatch_alert='warning',
+                implicit_cast_alert='warning',
+                m=m,
+                n=n,
+                bits=abs(bmin),
+            )
+        nose.tools.assert_equal(len(warnings), 0)
 
 @nose.tools.nottest
 @tools.setup(progress_bar=True)
@@ -192,12 +251,11 @@ def test_initfloat_clamp():
         bmax = 2**(m + n - s) - 1
         bmin = -(bmax + 1) * s
         lsb = 2**-n
-        minimum = float(bmin * lsb)
-        maximum = float(bmax * lsb)
+        props = {'overflow': 'clamp'}
+        fmin = uut.FixedPoint(minimum := float(bmin * lsb), s, m, n, **props)
+        fmax = uut.FixedPoint(maximum := float(bmax * lsb), s, m, n, **props)
         UTLOG.debug("%sQ%d.%d\n%.53f\n%.53f", '' if s else 'U', m, n,
             minimum, maximum, **LOGID)
-
-        props = {'overflow': 'clamp'}
 
         # Minimum and maximum value should not produce a warning or exception
         with tools.CaptureWarnings() as warnings:
@@ -242,6 +300,7 @@ def test_initfloat_clamp():
         minmsg = r"WARNING \[SN\d+\]: Clamped to minimum\."
         with tools.CaptureWarnings() as warnings:
             x = uut.FixedPoint(maximum + lsb, s, m, n, **props)
+            nose.tools.assert_equal(x, fmax)
             nose.tools.assert_equal(float(x), maximum)
             nose.tools.assert_true(x.clamped)
             first, second = warnings.logs
@@ -250,6 +309,7 @@ def test_initfloat_clamp():
 
         with tools.CaptureWarnings() as warnings:
             x = uut.FixedPoint(minimum - lsb, s, m, n, **props)
+            nose.tools.assert_equal(x, fmin)
             nose.tools.assert_equal(float(x), minimum)
             nose.tools.assert_true(x.clamped)
             first, second = warnings.logs
@@ -260,12 +320,14 @@ def test_initfloat_clamp():
         props['overflow_alert'] = 'ignore'
         with tools.CaptureWarnings() as warnings:
             x = uut.FixedPoint(maximum + lsb, s, m, n, **props)
+            nose.tools.assert_equal(x, fmax)
             nose.tools.assert_equal(float(x), maximum)
             nose.tools.assert_true(x.clamped)
         nose.tools.assert_equal(len(warnings), 0)
 
         with tools.CaptureWarnings() as warnings:
             x = uut.FixedPoint(minimum - lsb, s, m, n, **props)
+            nose.tools.assert_equal(x, fmin)
             nose.tools.assert_equal(float(x), minimum)
             nose.tools.assert_true(x.clamped)
         nose.tools.assert_equal(len(warnings), 0)
@@ -284,12 +346,11 @@ def test_initfloat_wrap():
         bmax = 2**(m + n - s) - 1
         bmin = -(bmax + 1) * s
         lsb = 2**-n
-        minimum = float(bmin * lsb)
-        maximum = float(bmax * lsb)
+        props = {'overflow': 'wrap'}
+        fmin = uut.FixedPoint(minimum := float(bmin * lsb), s, m, n, **props)
+        fmax = uut.FixedPoint(maximum := float(bmax * lsb), s, m, n, **props)
         UTLOG.debug("%sQ%d.%d\n%.53f\n%.53f", '' if s else 'U', m, n,
             minimum, maximum, **LOGID)
-
-        props = {'overflow': 'wrap'}
 
         # Minimum and maximum value should not produce a warning or exception
         with tools.CaptureWarnings() as warnings:
@@ -334,6 +395,7 @@ def test_initfloat_wrap():
         minmsg = r"WARNING \[SN\d+\]: Wrapped minimum\."
         with tools.CaptureWarnings() as warnings:
             x = uut.FixedPoint(maximum + lsb, s, m, n, **props)
+            nose.tools.assert_equal(x, fmin)
             nose.tools.assert_equal(float(x), minimum)
             nose.tools.assert_true(x.clamped)
             first, second = warnings.logs
@@ -342,6 +404,7 @@ def test_initfloat_wrap():
 
         with tools.CaptureWarnings() as warnings:
             x = uut.FixedPoint(minimum - lsb, s, m, n, **props)
+            nose.tools.assert_equal(x, fmax)
             nose.tools.assert_equal(float(x), maximum)
             nose.tools.assert_true(x.clamped)
             first, second = warnings.logs
@@ -352,12 +415,14 @@ def test_initfloat_wrap():
         props['overflow_alert'] = 'ignore'
         with tools.CaptureWarnings() as warnings:
             x = uut.FixedPoint(maximum + lsb, s, m, n, **props)
+            nose.tools.assert_equal(x, fmin)
             nose.tools.assert_equal(float(x), minimum)
             nose.tools.assert_true(x.clamped)
         nose.tools.assert_equal(len(warnings), 0)
 
         with tools.CaptureWarnings() as warnings:
             x = uut.FixedPoint(minimum - lsb, s, m, n, **props)
+            nose.tools.assert_equal(x, fmax)
             nose.tools.assert_equal(float(x), maximum)
             nose.tools.assert_true(x.clamped)
         nose.tools.assert_equal(len(warnings), 0)
@@ -620,7 +685,11 @@ def test_from_float():
         )
         nose.tools.assert_equal(float(x), init)
 
-    # Verify that passing in something other than a float throws an error
+@tools.setup(progress_bar=False)
+def test_fromfloat_error():
+    """Verify from_float exceptions
+    """
+    x = uut.FixedPoint(1.0)
     errmsg = re.escape(f'Expected {type(1.0)}; got {type(13)}.')
     with nose.tools.assert_raises_regex(TypeError, errmsg):
         x.from_float(13)
@@ -630,17 +699,19 @@ def test_float():
     """Verify FixedPoint(float)
     """
     for test in [
-    test_initfloat,
-    test_initfloat_partial_q,
-    test_initfloatlike,
-    test_initfloat_clamp,
-    test_initfloat_wrap,
-    test_initfloat_convergent,
-    test_initfloat_nearest,
-    test_initfloat_down,
-    test_initfloat_out,
-    test_initfloat_in,
-    test_initfloat_up,
+            test_initfloat_clamp,
+            test_initfloat_wrap,
+            test_initfloat,
+            test_initfloat_minmax,
+            test_initnotfloatable,
+            test_initfloat_partial_q,
+            test_initfloatlike,
+            test_initfloat_convergent,
+            test_initfloat_nearest,
+            test_initfloat_down,
+            test_initfloat_out,
+            test_initfloat_in,
+            test_initfloat_up,
     ]:
         yield test
 
@@ -724,10 +795,11 @@ def test_initint_partial_q():
 
 @nose.tools.nottest
 @tools.setup(progress_bar=True)
-def test_initint_clamp():
-    """Verify FixedPoint(int) with clamp
+def test_initint_minmax():
+    """Verify FixedPoint(maxint/minint)
     """
-    sys.stderr.write(f'\b\b\b\b\b with clamp ... ')
+    sys.stderr.write(f'\b\b\b\b\b with min/max ... ')
+    overflows = [x.name for x in uut.properties.Overflow]
     for _ in tools.test_iterator():
         s = random.randrange(2)
         m = random.randint(1, 1000)
@@ -735,7 +807,7 @@ def test_initint_clamp():
         maximum = 2**(m - s) - 1
         minimum = -2**(m - 1) * s
 
-        props = {'overflow': 'clamp'}
+        props = {'overflow': random.choice(overflows)}
 
         # Minimum and maximum value should not produce a warning or exception
         with tools.CaptureWarnings() as warnings:
@@ -744,7 +816,7 @@ def test_initint_clamp():
                 signed=s,
                 str_base=16,
                 rounding='convergent' if s else 'nearest',
-                overflow='clamp',
+                overflow=props['overflow'],
                 overflow_alert='error',
                 mismatch_alert='warning',
                 implicit_cast_alert='warning',
@@ -757,7 +829,7 @@ def test_initint_clamp():
                 signed=s,
                 str_base=16,
                 rounding='convergent' if s else 'nearest',
-                overflow='clamp',
+                overflow=props['overflow'],
                 overflow_alert='error',
                 mismatch_alert='warning',
                 implicit_cast_alert='warning',
@@ -766,6 +838,20 @@ def test_initint_clamp():
                 bits=s << (m + n - 1),
             )
         nose.tools.assert_equal(len(warnings), 0)
+
+@nose.tools.nottest
+@tools.setup(progress_bar=True)
+def test_initint_clamp():
+    """Verify FixedPoint(int) with clamp
+    """
+    sys.stderr.write(f'\b\b\b\b\b with clamp ... ')
+    for _ in tools.test_iterator():
+        s = random.randrange(2)
+        m = random.randint(1, 1000)
+        n = random.randint(0, 1000)
+        props = {'overflow': 'clamp'}
+        fmax = uut.FixedPoint(maximum := 2**(m - s) - 1, s, m, 0, **props)
+        fmin = uut.FixedPoint(minimum := -2**(m - 1) * s, s, m, n, **props)
 
         # Default behavior is for overflows to raise an exception
         errmsg = r"\[SN\d+\] Integer -?\d+ overflows in U?Q\d+\.\d+ format\."
@@ -782,6 +868,7 @@ def test_initint_clamp():
         minmsg = r"WARNING \[SN\d+\]: Clamped to minimum\."
         with tools.CaptureWarnings() as warnings:
             x = uut.FixedPoint(maximum + 1, s, m, 0, **props)
+            nose.tools.assert_equal(x, fmax)
             nose.tools.assert_equal(int(x), maximum)
             nose.tools.assert_true(x.clamped)
             first, second = warnings.logs
@@ -790,6 +877,7 @@ def test_initint_clamp():
 
         with tools.CaptureWarnings() as warnings:
             x = uut.FixedPoint(minimum - 1, s, m, n, **props)
+            nose.tools.assert_equal(x, fmin)
             nose.tools.assert_equal(int(x), minimum)
             nose.tools.assert_true(x.clamped)
             first, second = warnings.logs
@@ -800,12 +888,14 @@ def test_initint_clamp():
         props['overflow_alert'] = 'ignore'
         with tools.CaptureWarnings() as warnings:
             x = uut.FixedPoint(maximum + 1, s, m, 0, **props)
+            nose.tools.assert_equal(x, fmax)
             nose.tools.assert_equal(int(x), maximum)
             nose.tools.assert_true(x.clamped)
         nose.tools.assert_equal(len(warnings), 0)
 
         with tools.CaptureWarnings() as warnings:
             x = uut.FixedPoint(minimum - 1, s, m, n, **props)
+            nose.tools.assert_equal(x, fmin)
             nose.tools.assert_equal(int(x), minimum)
             nose.tools.assert_true(x.clamped)
         nose.tools.assert_equal(len(warnings), 0)
@@ -820,10 +910,9 @@ def test_initint_wrap():
         s = random.randrange(2);
         m = random.randint(1, 1000)
         n = random.randint(0, 1000)
-        maximum = max(0, 2**(m - s) - 1) # Will be 0 for Q1.n
-        minimum = -2**(m - 1) * s
-
         props = {'overflow': 'wrap'}
+        fmax = uut.FixedPoint(maximum := max(0, 2**(m - s) - 1), s, m, 0, **props) # Will be 0 for Q1.n
+        fmin = uut.FixedPoint(minimum := -2**(m - 1) * s, s, m, n, **props)
 
         # Minimum and maximum value should not produce a warning or exception
         with tools.CaptureWarnings() as warnings:
@@ -870,6 +959,7 @@ def test_initint_wrap():
         minmsg = r"WARNING \[SN\d+\]: Wrapped minimum\."
         with tools.CaptureWarnings() as warnings:
             x = uut.FixedPoint(maximum + 1, s, m, 0, **props)
+            nose.tools.assert_equal(x, fmin)
             nose.tools.assert_equal(int(x), minimum)
             first, second = warnings.logs
             nose.tools.assert_true(re.search(wmsg, first))
@@ -877,6 +967,7 @@ def test_initint_wrap():
 
         with tools.CaptureWarnings() as warnings:
             x = uut.FixedPoint(minimum - 1, s, m, n, **props)
+            nose.tools.assert_equal(x, fmax)
             nose.tools.assert_equal(int(x), maximum)
             first, second = warnings.logs
             nose.tools.assert_true(re.search(wmsg, first))
@@ -886,11 +977,13 @@ def test_initint_wrap():
         props['overflow_alert'] = 'ignore'
         with tools.CaptureWarnings() as warnings:
             x = uut.FixedPoint(maximum + 1, s, m, 0, **props)
+            nose.tools.assert_equal(x, fmin)
             nose.tools.assert_equal(int(x), minimum)
         nose.tools.assert_equal(len(warnings), 0)
 
         with tools.CaptureWarnings() as warnings:
             x = uut.FixedPoint(minimum - 1, s, m, n, **props)
+            nose.tools.assert_equal(x, fmax)
             nose.tools.assert_equal(int(x), maximum)
         nose.tools.assert_equal(len(warnings), 0)
 
@@ -899,10 +992,11 @@ def test_int():
     """Verify FixedPoint(int)
     """
     for test in [
-    test_initint,
-    test_initint_partial_q,
-    test_initint_clamp,
-    test_initint_wrap,
+            test_initint,
+            test_initint_partial_q,
+            test_initint_clamp,
+            test_initint_wrap,
+            test_initint_minmax,
     ]:
         yield test
 
@@ -932,6 +1026,11 @@ def test_from_int():
             bits=(init << n) & (2**(m+n)-1),
         )
 
+@tools.setup(progress_bar=True)
+def test_from_int_error():
+    """Verify from_int error
+    """
+    x = uut.FixedPoint(1)
     # Verify that passing in something other than an int throws an error
     errmsg = re.escape(f'Expected {type(1)}; got {type(13.0)}.')
     with nose.tools.assert_raises_regex(TypeError, errmsg):
@@ -941,7 +1040,7 @@ def test_from_int():
 # STRING TESTS
 ###############################################################################
 @nose.tools.nottest
-def initstr_gen(one_per_yield=False) -> Tuple[int, Tuple[Any, ...], Dict[str, Any], bool, int, int, int]:
+def initstr_gen() -> Tuple[int, Tuple[Any, ...], Dict[str, Any], bool, int, int, int]:
     """Generates strings. Return style is:
     (init, *args, **kwargs, signed, m, n, bits)
     """
@@ -952,10 +1051,8 @@ def initstr_gen(one_per_yield=False) -> Tuple[int, Tuple[Any, ...], Dict[str, An
         m = random.randint(s, 1000)
         n = random.randint(m == 0, 1000 - m)
         init = random.getrandbits(L := m + n) | (s << (L-1))
-        for conv in base_conversion:
-            yield conv(init), (bool(s), m, n), {}, bool(s), m, n, init
-            if one_per_yield:
-                break
+        conv = random.choice(base_conversion)
+        yield conv(init), (bool(s), m, n), {}, bool(s), m, n, init
 
 @tools.setup(progress_bar=True)
 def test_initstr():
@@ -1066,7 +1163,7 @@ def nondefault_props_gen() -> Tuple[Union[float, int, str], Tuple[Any, ...], Dic
         'implicit_cast_alert': [x.name for x in uut.properties.Alert],
         'mismatch_alert': [x.name for x in uut.properties.Alert],
     }
-    iterator = zip(initfloat_gen(), initint_gen(), initstr_gen(one_per_yield=1))
+    iterator = zip(initfloat_gen(), initint_gen(), initstr_gen())
     for f, i, s in tools.test_iterator(iterator):
         x = random.choice([f, i, s])
 
@@ -1125,7 +1222,7 @@ def test_init_invalid_q():
     """
     # String not fully specified
     base_conversion = list(uut.properties.StrConv.values())
-    errmsg = r"^When initializing with a string literal, Q format must be fully constrained\.$"
+    errmsg = r"^String literal initialization Q format must be fully constrained\.$"
     for nbit in tools.test_iterator():
         s = random.randrange(2)
         m = random.randint(s, 1000)

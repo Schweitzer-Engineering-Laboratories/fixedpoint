@@ -997,7 +997,7 @@ def test_min_n():
         nose.tools.assert_equal(float(x), val)
         # When there are fractional bits, the lsb should be 1
         if x.n:
-            nose.tools.assert_equal(x['lsb'], 1, repr(x))
+            nose.tools.assert_equal(x.bits['lsb'], 1, repr(x))
 
         # Test random floats
         s = random.randrange(2)
@@ -1008,5 +1008,5 @@ def test_min_n():
         x = uut.FixedPoint(init, n=minn)
         nose.tools.assert_equal(float(x), init)
         if x.n:
-            nose.tools.assert_equal(x['lsb'], 1, repr(x))
+            nose.tools.assert_equal(x.bits['lsb'], 1, repr(x))
 

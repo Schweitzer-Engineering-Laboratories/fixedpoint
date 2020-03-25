@@ -1,37 +1,33 @@
-###############################################################################
-`FixedPoint` Initialization
-###############################################################################
-
 ..  currentmodule:: fixedpoint
+
+###############################################################################
+Initialization
+###############################################################################
 
 ..  _init_float:
 
 *******************************************************************************
-Initializing from a `float`
+Initializing from a float
 *******************************************************************************
 
-When initializing a `FixedPoint` from a `float`, *signed*, *m*, and *n* are all
-optional. Thus the following object instantiations are all valid:
+When initializing a :class:`FixedPoint` from a `float`, *signed*, *m*, and *n*
+are all optional. Thus the following object instantiations are all valid:
 
 ..  doctest:: initializing from a float
 
     >>> from fixedpoint import FixedPoint
     >>> from math import pi
     >>> a = FixedPoint(pi) # No signed, m, or n argument
-    >>> float(a)
-    3.141592653589793
-    >>> a.qformat
-    'UQ2.48'
+    >>> float(a), a.qformat
+    (3.141592653589793, 'UQ2.48')
+
     >>> b = FixedPoint(pi, True) # No m or n argument
-    >>> float(b)
-    3.141592653589793
-    >>> b.qformat
-    'Q3.48'
+    >>> float(b), b.qformat
+    (3.141592653589793, 'Q3.48')
+
     >>> c = FixedPoint(2**-80, m=10, n=80) # No signed argument
-    >>> float(c)
-    8.271806125530277e-25
-    >>> c.qformat
-    'UQ10.80'
+    >>> float(c), c.qformat
+    (8.271806125530277e-25, 'UQ10.80')
 
 ..  |float issues| replace:: :pytut:`Issues and Limitations of Floating Point Arithmetic <floatingpoint.html>`
 
@@ -60,7 +56,7 @@ this method of representing :math:`\pi` suffers from inaccuracy.
 ..  _init_int:
 
 *******************************************************************************
-Initializing from an `int`
+Initializing from an int
 *******************************************************************************
 
 When initializing a `FixedPoint` from an `int`, *signed*, *m*, and *n* are all
@@ -75,9 +71,11 @@ to remove superfluous leading 0s or sign-extended 1s.
     >>> a = FixedPoint(-2**1000, n=42) # No signed or m argument
     >>> a.qformat
     'Q1001.42'
+
     >>> b = FixedPoint(14, True, 10) # No n argument
     >>> b.qformat, float(b)
     ('Q10.0', 14.0)
+
     >>> c = FixedPoint(0, 0, 19, 88) # Signed, m, and n arguments are present
     >>> str(c)
     '000000000000000000000000000'
@@ -93,7 +91,7 @@ to remove superfluous leading 0s or sign-extended 1s.
 ..  _init_str:
 
 *******************************************************************************
-Initializing from a `str`
+Initializing from a str
 *******************************************************************************
 
 When initializing a `FixedPoint` from a `str`, *signed*, *m*, and *n* are
@@ -104,7 +102,7 @@ required:
     >>> a = FixedPoint('1') # no Q format
     Traceback (most recent call last):
         ...
-    ValueError: When initializing with a string literal, Q format must be fully constrained.
+    ValueError: String literal initialization Q format must be fully constrained.
 
 The string is converted to an *int* and this value is stored internally as the
 FixedPoint :attr:`~.FixedPoint.bits`. This means that leading 0s are ignored
@@ -127,13 +125,13 @@ exceed the specified :ref:`Q format <Q_Format>`, a :exc:`ValueError` is raised.
     ValueError: Superfluous bits detected in string literal '0xFF' for Q2.0 format.
 
 ``int(init, 0)`` is used to internally convert the *str* to *int*, thus the
-:const:`0b`, :const:`0o`, or :const:`0x` radix is required for binary, octal,
-or hexadecimal strings, respectively. If the radix is not present, it is
-considered a decimal number. This means if you have an integer that represents
-some known/desired :ref:`Q format <Q_Format>`, you can simply call :func:`bin`,
-:func:`oct`, :class:`str` or :func:`hex` to convert it to a *str*, then to a
-`FixedPoint`. This method of initialization may be super useful in generating
-random stimulus:
+``0b``, ``0o``, or ``0x`` radix is required for binary, octal, or hexadecimal
+strings, respectively. If the radix is not present, it is considered a decimal
+number. This means if you have an integer that represents some known/desired
+:ref:`Q format <Q_Format>`, you can simply call :func:`bin`, :func:`oct`,
+:class:`str` or :func:`hex` to convert it to a *str*, then to a
+:class:`FixedPoint`. This method of initialization may be super useful in
+generating random stimulus:
 
 ..  doctest:: initializing from a str
 
@@ -142,10 +140,8 @@ random stimulus:
     >>> signed, m, n = 1, 12, 13
     >>> bits = random.getrandbits(m + n)
     >>> x = FixedPoint(hex(bits), signed, m, n)
-    >>> float(x)
-    -1476.9078369140625
-    >>> x.qformat
-    'Q12.13'
+    >>> float(x), x.qformat
+    (-1476.9078369140625, 'Q12.13')
 
 ..  warning::
 
@@ -158,18 +154,17 @@ random stimulus:
     Traceback (most recent call last):
        ...
     ValueError: Superfluous bits detected in string literal '-1' for Q2.0 format.
+
     >>> m, n = 2, 0
     >>> mask = 2**(m + n) - 1
     >>> x = FixedPoint(str(-1 & mask), 1, m, n)
-    >>> float(x)
-    -1.0
-    >>> x.qformat
-    'Q2.0'
+    >>> float(x), x.qformat
+    (-1.0, 'Q2.0')
 
 ..  _init_fixedpoint:
 
 *******************************************************************************
-Initializing from another `FixedPoint`
+Initializing from another FixedPoint
 *******************************************************************************
 
 When initializing a `FixedPoint` from another `FixedPoint`, only *init* is
@@ -180,6 +175,7 @@ required; all other arguments are ignored.
     >>> x = FixedPoint(2**-5)
     >>> x.qformat
     'UQ0.5'
+
     >>> y = FixedPoint(x, n=492) # n is ignored
     >>> y.qformat
     'UQ0.5'
@@ -211,6 +207,7 @@ If this fails, a `TypeError` is raised.
     ...        self.value = value
     ...    def __float__(self):
     ...        return NotImplemented
+
     >>> FixedPoint(NotFloatable(13))
     Traceback (most recent call last):
         ...
@@ -352,19 +349,16 @@ default ``'error'`` to allow processing to continue.
     Traceback (most recent call last):
         ...
     FixedPointOverflowError: [SN1] Integer 999 overflows in UQ4.1 format.
+
     >>> try:
     ...     x
     ... except NameError:
     ...     print('x was not assigned because of the FixedPointOverflowError')
     x was not assigned because of the FixedPointOverflowError
 
-..  doctest:: clamp
-
     >>> x = FixedPoint(999, 0, 4, 1, overflow='clamp', overflow_alert='ignore')
     >>> x.clamped, x.qformat, bin(x), float(x)
     (True, 'UQ4.1', '0b11111', 15.5)
-
-..  doctest:: clamp
 
     >>> x = FixedPoint(999, 1, 4, 1, overflow='clamp', overflow_alert='warning')
     WARNING [SN3]: Integer 999 overflows in Q4.1 format.
@@ -372,15 +366,11 @@ default ``'error'`` to allow processing to continue.
     >>> x.qformat, hex(x), float(x)
     ('Q4.1', '0xf', 7.5)
 
-..  doctest:: clamp
-
     >>> x = FixedPoint(-999, 0, 4, 1, overflow='clamp', overflow_alert='warning')
     WARNING [SN4]: Integer -999 overflows in UQ4.1 format.
     WARNING [SN4]: Clamped to minimum.
     >>> x.qformat, hex(x), float(x)
     ('UQ4.1', '0x0', 0.0)
-
-..  doctest:: clamp
 
     >>> x = FixedPoint(-999, 1, 4, 1, overflow='clamp', overflow_alert='ignore')
     >>> x.qformat, bin(x), float(x)
@@ -409,19 +399,16 @@ default ``'error'`` to allow processing to continue.
     Traceback (most recent call last):
         ...
     FixedPointOverflowError: [SN1] Integer 24 overflows in UQ4.1 format.
+
     >>> try:
     ...     x
     ... except NameError:
     ...     print('x was not assigned because of the FixedPointOverflowError')
     x was not assigned because of the FixedPointOverflowError
 
-..  doctest:: wrap
-
     >>> x = FixedPoint(big, 0, 4, 1, overflow='wrap', overflow_alert='ignore')
     >>> x.clamped, x.qformat, bin(x), float(x)
     (False, 'UQ4.1', '0b10000', 8.0)
-
-..  doctest:: wrap
 
     >>> x = FixedPoint(big, 1, 4, 1, overflow='wrap', overflow_alert='warning')
     WARNING [SN3]: Integer 24 overflows in Q4.1 format.
@@ -429,15 +416,11 @@ default ``'error'`` to allow processing to continue.
     >>> x.qformat, hex(x), float(x)
     ('Q4.1', '0x10', -8.0)
 
-..  doctest:: wrap
-
     >>> x = FixedPoint(-1, 0, 4, 1, overflow='wrap', overflow_alert='warning')
     WARNING [SN4]: Integer -1 overflows in UQ4.1 format.
     WARNING [SN4]: Wrapped minimum.
     >>> x.qformat, bin(x), 15.0
     ('UQ4.1', '0b11110', 15.0)
-
-..  doctest:: wrap
 
     >>> -big & 0b11111
     8
@@ -553,15 +536,12 @@ number of fractional bits:
 ..  doctest:: convergent round
 
     >>> x = FixedPoint('0b100110', 1, 2, 4, rounding='convergent')
-    >>> x.qformat
-    'Q2.4'
-    >>> float(x)
-    -1.625
+    >>> float(x), x.qformat
+    (-1.625, 'Q2.4')
+
     >>> y = FixedPoint(float(x), n=2, rounding='convergent') # round to 2 frac bits
-    >>> bin(y)
-    '0b1010'
-    >>> float(y)
-    -1.5
+    >>> float(y), bin(y)
+    (-1.5, '0b1010')
 
 Because convergent rounding can cause the value of the number to increase, it
 can cause overflow.
@@ -575,11 +555,10 @@ can cause overflow.
     Traceback (most recent call last):
         ...
     FixedPointOverflowError: [SN1] 3.500000e+00 overflows in UQ2.0 format.
+
     >>> z = FixedPoint(3.5, n=0, rounding='convergent') # Requires 4 integer bits
-    >>> float(z)
-    4.0
-    >>> z.qformat
-    'UQ3.0'
+    >>> float(z), z.qformat
+    (4.0, 'UQ3.0')
 
 ..  _nearest:
 
@@ -591,7 +570,6 @@ nearest value. :wikirounding:`Wikipedia <Round_half_up>` describes this widely
 used rounding method.
 
 ..  doctest:: round nearest
-    :pyversion: == 3.8
 
     >>> x = FixedPoint(0, signed=1, m=4, n=0, rounding='nearest')
     >>> for sign in [+1, -1]:
@@ -618,15 +596,12 @@ number of fractional bits:
 ..  doctest:: round nearest
 
     >>> x = FixedPoint('0b100110', 1, 2, 4, rounding='nearest')
-    >>> x.qformat
-    'Q2.4'
-    >>> float(x)
-    -1.625
+    >>> x.qformat, float(x)
+    ('Q2.4', -1.625)
+
     >>> y = FixedPoint(float(x), n=2, rounding='nearest') # round to 2 frac bits
-    >>> bin(y)
-    '0b1010'
-    >>> float(y)
-    -1.5
+    >>> bin(y), float(y)
+    ('0b1010', -1.5)
 
 Because rounding to nearest can cause the value of the number to increase, it
 can cause overflow.
@@ -639,11 +614,10 @@ can cause overflow.
     Traceback (most recent call last):
         ...
     FixedPointOverflowError: [SN1] 15.500000e+00 overflows in UQ4.0 format.
+
     >>> z = FixedPoint(15.5, n=0, rounding='nearest') # Requires 5 integer bits
-    >>> float(z)
-    16.0
-    >>> z.qformat
-    'UQ5.0'
+    >>> float(z), z.qformat
+    (16.0, 'UQ5.0')
 
 ..  _out:
 
@@ -681,15 +655,12 @@ number of fractional bits:
 ..  doctest:: round out
 
     >>> x = FixedPoint('0b100110', 1, 2, 4, rounding='out')
-    >>> x.qformat
-    'Q2.4'
-    >>> float(x)
-    -1.625
+    >>> x.qformat, float(x)
+    ('Q2.4', -1.625)
+
     >>> y = FixedPoint(float(x), n=2, rounding='out') # round to 2 fractional bits
-    >>> bin(y)
-    '0b1001'
-    >>> float(y)
-    -1.75
+    >>> bin(y), float(y)
+    ('0b1001', -1.75)
 
 Because rounding away from 0 causes the magnitude of the number to increase, it
 can cause overflow.
@@ -702,11 +673,10 @@ can cause overflow.
     Traceback (most recent call last):
         ...
     FixedPointOverflowError: [SN1] 15.500000e+00 overflows in UQ4.0 format.
+
     >>> z = FixedPoint(15.5, n=0, rounding='nearest') # Requires 5 integer bits
-    >>> float(z)
-    16.0
-    >>> z.qformat
-    'UQ5.0'
+    >>> float(z), z.qformat
+    (16.0, 'UQ5.0')
 
 ..  _in:
 
@@ -751,15 +721,12 @@ number of fractional bits:
 ..  doctest:: round in
 
     >>> x = FixedPoint('0b100110', 0, 2, 4, rounding='in')
-    >>> x.qformat
-    'UQ2.4'
-    >>> float(x)
-    2.375
+    >>> x.qformat, float(x)
+    ('UQ2.4', 2.375)
+
     >>> y = FixedPoint(float(x), n=2, rounding='in') # round to 2 fractional bits
-    >>> bin(y)
-    '0b1001'
-    >>> float(y)
-    2.25
+    >>> bin(y), float(y)
+    ('0b1001', 2.25)
 
 Because rounding in will always decrease the number's magnitude, it cannot
 cause overflow.
@@ -795,16 +762,15 @@ The example above shows easy-to-understand values and rounding off fractional
 bits completely. However, the same principal applies to round to a non-zero
 number of fractional bits:
 
->>> x = FixedPoint('0b100110', 0, 2, 4, rounding='up')
->>> x.qformat
-'UQ2.4'
->>> float(x)
-2.375
->>> y = FixedPoint(float(x), n=2, rounding='up') # round to 2 fractional bits
->>> bin(y)
-'0b1010'
->>> float(y)
-2.5
+..  doctest:: round up
+
+    >>> x = FixedPoint('0b100110', 0, 2, 4, rounding='up')
+    >>> x.qformat, float(x)
+    ('UQ2.4', 2.375)
+
+    >>> y = FixedPoint(float(x), n=2, rounding='up') # round to 2 fractional bits
+    >>> bin(y), float(y)
+    ('0b1010', 2.5)
 
 Because rounding up can cause the number's magnitude to increase, it can cause
 overflow.
@@ -817,11 +783,10 @@ overflow.
     Traceback (most recent call last):
         ...
     FixedPointOverflowError: [SN1] 15.500000e+00 overflows in UQ4.0 format.
+
     >>> z = FixedPoint(15.5, n=0, rounding='up') # Requires 5 integer bits
-    >>> float(z)
-    16.0
-    >>> z.qformat
-    'UQ5.0'
+    >>> float(z), z.qformat
+    (16.0, 'UQ5.0')
 
 ..  _down:
 
@@ -864,16 +829,15 @@ The example above shows easy-to-understand values and rounding off fractional
 bits completely. However, the same principal applies to round to a non-zero
 number of fractional bits:
 
->>> x = FixedPoint('0b100110', 0, 2, 4, rounding='down')
->>> x.qformat
-'UQ2.4'
->>> float(x)
-2.375
->>> y = FixedPoint(float(x), n=2, rounding='down')
->>> bin(y)
-'0b1001'
->>> float(y)
-2.25
+..  doctest:: round down
+
+    >>> x = FixedPoint('0b100110', 0, 2, 4, rounding='down')
+    >>> x.qformat, float(x)
+    ('UQ2.4', 2.375)
+
+    >>> y = FixedPoint(float(x), n=2, rounding='down')
+    >>> bin(y), float(y)
+    ('0b1001', 2.25)
 
 Because rounding down will always make the value of the number smaller in
 magnitude, it cannot cause overflow.
@@ -928,6 +892,7 @@ In this notification scheme, overflow causes execution to halt and a
     Traceback (most recent call last):
         ...
     FixedPointOverflowError: [SN1] 999 overflows in UQ1.0 format.
+
     >>> x # Does not exist because of the exception!
     Traceback (most recent call last):
         ...
@@ -952,8 +917,6 @@ warning informs you of the action taken.
     >>> float(x), x.clamped
     (1.0, True)
 
-..  doctest:: overflow_alert warning
-
     >>> y = FixedPoint(3, 1, 2, 0, overflow='wrap', overflow_alert='warning')
     WARNING [SN2]: Integer 3 overflows in Q2.0 format.
     WARNING [SN2]: Wrapped maximum.
@@ -974,8 +937,6 @@ In this notification scheme, overflow is handled silently.
     >>> x = FixedPoint(3.75, 0, 2, 1, overflow_alert='ignore')
     >>> float(x), x.clamped
     (3.5, True)
-
-..  doctest:: overflow_alert ignore
 
     >>> y = FixedPoint(-3, 1, 2, 10, overflow='wrap', overflow_alert='ignore')
     >>> float(y), bin(y)
@@ -1071,6 +1032,7 @@ a :exc:`MismatchError` exception.
     Traceback (most recent call last):
         ...
     MismatchError: Non-matching rounding behaviors ['convergent', 'nearest'].
+
     >>> c # Does not exist because of the exception!
     Traceback (most recent call last):
         ...
@@ -1089,6 +1051,7 @@ properties the first mismatch encountered in the
     Traceback (most recent call last):
         ...
     MismatchError: Non-matching mismatch_alert behaviors ['error', 'ignore'].
+
     >>> d # Does not exist because of the exception!
     Traceback (most recent call last):
         ...
@@ -1114,6 +1077,7 @@ properties, the second informs you of the resolution.
     >>> z = x - y
     WARNING [SN1]: Non-matching rounding behaviors ['down', 'nearest'].
     WARNING [SN1]: Using 'nearest'.
+
     >>> z.rounding
     'nearest'
 
@@ -1128,6 +1092,7 @@ Warnings are emitted in the
     WARNING [SN1]: Using 'clamp'.
     WARNING [SN1]: Non-matching rounding behaviors ['down', 'nearest'].
     WARNING [SN1]: Using 'nearest'.
+
     >>> zz.rounding, zz.overflow
     ('nearest', 'clamp')
 
@@ -1163,8 +1128,6 @@ The same examples from above are used.
     >>> z = x - y
     >>> z.rounding
     'nearest'
-
-..  doctest:: mismatch_alert ignore
 
     >>> y.overflow = 'wrap'
     >>> zz = x + y # Overflow is resolved before rounding
@@ -1222,6 +1185,7 @@ raise an :exc:`ImplicitCastError` exception and operation is halted.
     Traceback (most recent call last):
         ...
     ImplicitCastError: [SN1] Casting 0.2 to UQ0.53 introduces an error of 5.551115e-17
+
     >>> x # Does not exist because of the exception!
     Traceback (most recent call last):
         ...
@@ -1247,6 +1211,7 @@ emit a warning, but the operation is still carried out.
     >>> a = FixedPoint(1969, implicit_cast_alert='warning')
     >>> a -= 0.3
     WARNING [SN1]: Casting 0.3 to UQ0.52 introduces an error of 5.551115e-17
+
     >>> print(f"{a:.60f}")
     1968.700000000000045474735088646411895751953125000000000000000000
 

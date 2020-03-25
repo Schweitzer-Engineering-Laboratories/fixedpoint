@@ -24,14 +24,7 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-
-"""
-Fixed point arithmetic library
-
-Generate fixed point numbers from numeric types, as well as bitwise literals
-from strings. Perform unary, binary, and bitwise operations on fixed point
-types. Supports various overflow handling and rounding schemes.
-"""
+"""Fixed point arithmetic package."""
 __author__ = "Zack Sheffield"
 __copyright__ = "2019-2020, Schweitzer Engineering Laboratories, Inc."
 __license__ = "BSD"
@@ -44,23 +37,24 @@ __credits__ = [
 __maintainer__ = "Zack Sheffield"
 __email__ = "zack_sheffield@selinc.com"
 
-from fixedpoint.fixedpoint import *
-from fixedpoint.functions import *
+from fixedpoint.fixedpoint import *  # noqa # ignore unused imports
+from fixedpoint.functions import *  # noqa # ignore unused imports
+
 
 class FixedPointError(Exception):
-    '''Base class for FixedPoint warning. This allows any warning raised from
-    the FixedPoint object to be caught.
-    '''
+    """Base class for FixedPoint exceptions.
+
+    This allows any warning raised from the FixedPoint object to be caught.
+    """
+
 
 class FixedPointOverflowError(FixedPointError, OverflowError):
-    '''Issued when overflow occurs.
-    '''
+    """Issued when overflow occurs."""
+
 
 class MismatchError(FixedPointError):
-    '''Issued when properties don't match and arbitration must occur.
-    '''
+    """Issued when properties don't match and arbitration must occur."""
+
 
 class ImplicitCastError(FixedPointError, FloatingPointError):
-    '''Issued when an argument must be cast to a FixedPoint object and it cannot
-    be represented without error.
-    '''
+    """Issued when casting to a FixedPoint introduces error."""

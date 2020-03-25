@@ -67,7 +67,6 @@ def verify_properties_exist(obj):
         "__id",
         "__cmstack",
         "__context",
-        "__flag",
     }
 
     actual = set(obj.__slots__)
@@ -150,7 +149,7 @@ class CaptureWarnings:
         """
         import fixedpoint.logging
         self.stream = io.StringIO()
-        self.handler = fixedpoint.logging._WARNER_CONSOLE_HANDLER
+        self.handler = fixedpoint.logging.WARNER_CONSOLE_HANDLER
         self.fpstream = None
 
     @property
@@ -217,8 +216,14 @@ class MATLAB:
 
         # MATLAB is time consuming. Don't generate new stimulus if it already
         # exists
-        if (testdir / f'{test.name}.stim').exists():
-            return
+        if os.environ.get('FIXEDPOINTGENALL', ''):
+            testdir = testdir.parent
+            cmd = "gen_data;exit"
+        else:
+            # Don't regenerate stimulus if it already exists
+            if (testdir / f'{test.name}.stim').exists():
+                return
+            cmd = f"{test.name};exit"
 
         # Print status message
         status = "MATLAB running"
@@ -236,7 +241,7 @@ class MATLAB:
                 '-wait',
                 '-automation',
                 '-sd', str(testdir),
-                '-r', f'{test.name};exit',
+                '-r', cmd,
             ],
             env=os.environ,
         )

@@ -259,11 +259,16 @@ def test_typing():
     os.makedirs(html_report, exist_ok=True)
     os.makedirs(cache_dir, exist_ok=True)
 
+    # The html report requires the lxml package to run. The report isn't so
+    # helpful, and also lxml requires some C++ distributable to be installed.
+    # I prefer here to make tests easier to run rather than requiring that a
+    # not-so-helpful report gets generated. Use the --html-report command
+    # if you want to do this yourself.
     mypy = subprocess.run(
         [
             'py', '-m', 'mypy',
             "--config-file", str(config_file.resolve()),
-            "--html-report", str(html_report.resolve()),
+            # "--html-report", str(html_report.resolve()),
             "--cache-dir", str(cache_dir.resolve()),
             "--package", str(package),
         ],
@@ -275,19 +280,17 @@ def test_typing():
     # file view what lines are considered "imprecise". This appears to only be
     # the case in Firefox. Add a CSS rule to the HTML report to make this
     # work if it doesn't already exist.
-    css = str((pathlib.Path(__file__).parent / '..' / 'MYPY' / 'mypy-html.css').resolve())
-
-    with open(css) as f:
-        imprecise = '.line-imprecise' in f.read()
-    if not imprecise:
-        with open(css, 'a') as f:
-            f.write("\n.line-imprecise {\n    background-color: #ffa;\n}\n")
-
-    UTLOG.info("mypy-html.css path: %s\n\nSTDERR:\n%s\n\nSTDOUT:\n%s\n",
-        css,
-        mypy.stderr.decode().replace('\r\n', '\n'),
-        mypy.stdout.decode().replace('\r\n', '\n'), **LOGID
-    )
+    # css = str((pathlib.Path(__file__).parent / '..' / 'MYPY' / 'mypy-html.css').resolve())
+    # with open(css) as f:
+    #     imprecise = '.line-imprecise' in f.read()
+    # if not imprecise:
+    #     with open(css, 'a') as f:
+    #         f.write("\n.line-imprecise {\n    background-color: #ffa;\n}\n")
+    # UTLOG.info("mypy-html.css path: %s\n\nSTDERR:\n%s\n\nSTDOUT:\n%s\n",
+    #     css,
+    #     mypy.stderr.decode().replace('\r\n', '\n'),
+    #     mypy.stdout.decode().replace('\r\n', '\n'), **LOGID
+    # )
 
     if mypy.returncode:
         raise subprocess.SubprocessError('mypy typing failure; '
