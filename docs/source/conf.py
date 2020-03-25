@@ -124,7 +124,7 @@ smartquotes = True
 
 # The current time is formatted using time.strftime() and the format given in
 # today_fmt.
-today_fmt = '%d %b %Y %i:%M:%S %p'
+today_fmt = '%d %b %Y %I:%M:%S %p'
 
 # The default language to highlight source code in.
 highlight_language = 'python3'
