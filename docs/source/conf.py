@@ -204,7 +204,7 @@ theme_options = {
         # Changes the background of the search area in the navigation bar. The
         # value can be anything valid in a CSS background property.
         'style_nav_header_background': 'white',
-        # With this enabled, navigation entries are not expandable – the [+]
+        # With this enabled, navigation entries are not expandable - the [+]
         # icons next to each entry are removed.
         'collapse_navigation': True,
         # Scroll the navigation with the main page content as you scroll the
@@ -261,7 +261,7 @@ html_css_files = [
 # default.css.
 html_static_path = ["_static"]
 
-# If this is not None, a ‘Last updated on:' timestamp is inserted at every page
+# If this is not None, a 'Last updated on:' timestamp is inserted at every page
 # bottom, using the given strftime() format. The empty string is equivalent to
 # '%b %d, %Y' (or a locale-dependent equivalent).
 html_last_updated_fmt = '%d %b %Y'
