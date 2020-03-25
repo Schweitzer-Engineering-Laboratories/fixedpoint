@@ -671,9 +671,11 @@ class FixedPoint:
         return int(mask & bits)
 
     ###########################################################################
-    # Arithmetic (normal, augmented, and reflected) operators
+    # Operators
     # https://www.factmonster.com/math-science/mathematics/terms-used-in-equations
     ###########################################################################
+    # _________________________________________________________________________
+    # Arithmetic (normal, augmented, and reflected) operators
     def __unsupported(*args: Any, **kwargs: Any) -> NotImplemented:
         """Unsupported FixedPoint method."""
         return NotImplemented
@@ -941,9 +943,8 @@ class FixedPoint:
     __ror__ = __or__
     __rxor__ = __xor__
 
-    ###########################################################################
-    # Unary operators and functions
-    ###########################################################################
+    # _________________________________________________________________________
+    # Unary operators
     def __neg__(self: FixedPointType) -> FixedPointType:
         """Unary negation. Overflow handling occurs for max negative."""
         if not self._signed:
@@ -989,6 +990,42 @@ class FixedPoint:
                                     self.overflow_alert,
                                     self.implicit_cast_alert,
                                     self.mismatch_alert)
+
+    # _________________________________________________________________________
+    # Comparison operators
+    def __cmp__(self: FixedPointType, other: Numeric) -> int:
+        """Python 2 style comparison operator."""
+        fother: FixedPointType = self.__to_FixedPoint(other)
+
+        # Force a signed subtraction - grow by one bit temporarily to safely
+        # convert to a signed number if needed
+        with self(mismatch_alert='ignore', m=self._m + 1, signed=1) as left:
+            args = left.__sub(fother, '', self._owarn)
+        return self._posweight(*args) + self._negweight(*args)
+
+    def __eq__(self: FixedPointType, other: Any) -> bool:
+        """Equality comparison operator."""
+        return self.__cmp__(other) == 0
+
+    def __ne__(self: FixedPointType, other: Any) -> bool:
+        """Non-equality comparison operator."""
+        return self.__cmp__(other) != 0
+
+    def __lt__(self: FixedPointType, other: Any) -> bool:
+        """Less than comparison operator."""
+        return self.__cmp__(other) < 0
+
+    def __le__(self: FixedPointType, other: Any) -> bool:
+        """Less than or equal to comparison operator."""
+        return self.__cmp__(other) <= 0
+
+    def __gt__(self: FixedPointType, other: Any) -> bool:
+        """Greater than comparison operator."""
+        return self.__cmp__(other) > 0
+
+    def __ge__(self: FixedPointType, other: Any) -> bool:
+        """Greater than or equal to comparison operator."""
+        return self.__cmp__(other) >= 0
 
     ###########################################################################
     # Context management
@@ -1174,43 +1211,6 @@ class FixedPoint:
             f"mismatch_alert={self.mismatch_alert!r}, "
             f"implicit_cast_alert={self.implicit_cast_alert!r}, "
             f"{str_base=})")
-
-    ###########################################################################
-    # Comparison magic methods
-    ###########################################################################
-    def __cmp__(self: FixedPointType, other: Numeric) -> int:
-        """Python 2 style comparison operator."""
-        fother: FixedPointType = self.__to_FixedPoint(other)
-
-        # Force a signed subtraction - grow by one bit temporarily to safely
-        # convert to a signed number if needed
-        with self(mismatch_alert='ignore', m=self._m + 1, signed=1) as left:
-            args = left.__sub(fother, '', self._owarn)
-        return self._posweight(*args) + self._negweight(*args)
-
-    def __eq__(self: FixedPointType, other: Any) -> bool:
-        """Equality comparison operator."""
-        return self.__cmp__(other) == 0
-
-    def __ne__(self: FixedPointType, other: Any) -> bool:
-        """Non-equality comparison operator."""
-        return self.__cmp__(other) != 0
-
-    def __lt__(self: FixedPointType, other: Any) -> bool:
-        """Less than comparison operator."""
-        return self.__cmp__(other) < 0
-
-    def __le__(self: FixedPointType, other: Any) -> bool:
-        """Less than or equal to comparison operator."""
-        return self.__cmp__(other) <= 0
-
-    def __gt__(self: FixedPointType, other: Any) -> bool:
-        """Greater than comparison operator."""
-        return self.__cmp__(other) > 0
-
-    def __ge__(self: FixedPointType, other: Any) -> bool:
-        """Greater than or equal to comparison operator."""
-        return self.__cmp__(other) >= 0
 
     ###########################################################################
     # Bit resizing methods
@@ -1725,7 +1725,7 @@ class FixedPoint:
         self._overflow_alert = Alert[olvl]
 
     ###########################################################################
-    # Error handling
+    # Alerts and error handling
     ###########################################################################
     def __format_exception_msg(self: FixedPointType, msg: str,
                                args: Tuple[Any, ...]) -> str:
