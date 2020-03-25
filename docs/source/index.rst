@@ -46,3 +46,11 @@ Indices and tables
 
 * :ref:`genindex`
 * :ref:`search`
+
+###############################################################################
+License
+###############################################################################
+
+The fixedpoint package is released under the BSD license.
+
+..  include:: LICENSE.rst

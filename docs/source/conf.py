@@ -363,3 +363,6 @@ todo_link_only = False
 with open(_fixedpointdir / 'fixedpoint.py') as r, \
         open(_thisdir / 'fixedpoint', 'w') as w:
     w.write(r.read())
+
+with open(_rootdir / 'LICENSE') as r, open(_thisdir / 'LICENSE.rst', 'w') as w:
+    w.write(r.read())
