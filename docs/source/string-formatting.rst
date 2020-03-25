@@ -45,7 +45,7 @@ number. No radix is included.
 String Formatting
 *******************************************************************************
 
-..  include:: fixedpoint
+..  include:: FixedPointclass.rst
     :start-after: STRING FORMATTING INCLUDE START
     :end-before: STRING FORMATTING INCLUDE END
 
