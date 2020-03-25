@@ -162,14 +162,11 @@ trim_doctest_flags = True
 # -- Options for HTML output -------------------------------------------------
 
 # The "theme" that the HTML output should use.
-try:
+html_theme = 'default'
+if os.environ.get('READTHEDOCS', '').lower() != 'true':
     import sphinx_rtd_theme  # type: ignore
-except Exception:
-    html_theme = 'default'
-else:
     html_theme = 'sphinx_rtd_theme'
     html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
-    extensions.append('sphinx_rtd_theme')
 
 # A dictionary of options that influence the look and feel of the selected
 # theme. These are theme-specific.
@@ -227,7 +224,7 @@ html_theme_options = theme_options.get(html_theme, 'sphinx_rtd_theme')
 # The "title" for HTML documentation generated with Sphinx's own templates.
 # This is appended to the <title> tag of individual pages, and used in the
 # navigation bar as the "topmost" element.
-html_title = f'fixedpoint v{release} documentation'
+html_title = f'fixedpoint {release} documentation'
 
 # If given, this must be the name of an image file (path relative to the
 # configuration directory) that is the logo of the docs. It is placed at the
@@ -351,7 +348,7 @@ intersphinx_mapping = {
 # https://www.sphinx-doc.org/en/master/usage/extensions/todo.html
 
 # If this is True, todo and todolist produce output, else they produce nothing.
-todo_include_todos = os.environ.get('READTHEDOCS', None) != 'True'
+todo_include_todos = os.environ.get('READTHEDOCS', '').lower() != 'true'
 
 # If this is True, todo emits a warning for each TODO entries.
 todo_emit_warnings = True

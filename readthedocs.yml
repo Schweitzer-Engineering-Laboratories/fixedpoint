@@ -1,7 +1,7 @@
 # Read the Docs configuration file
-# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+# https://docs.readthedocs.io/en/stable/config-file/v2.html
 
-# Required
+# Config file version
 version: 2
 
 # Build documentation in the docs/ directory with Sphinx
@@ -12,10 +12,12 @@ sphinx:
 # Optionally build your docs in additional formats such as PDF and ePub
 formats:
   - htmlzip
+  # - pdf
+  # - epub
 
-# Optionally set the version of Python and requirements required to build your docs
+# Python version used to build docs and requirements
 python:
-  version: 3
+  version: 3.8
   install:
     - requirements: docs/requirements.txt
     - method: setuptools
