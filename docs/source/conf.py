@@ -251,7 +251,7 @@ html_favicon = str((_thisdir / '_static' / 'favicon.ico').resolve())
 # <link> tag.
 html_css_files = [
     'css/admonition-example.css',
-    'css/purple-text.css',
+    # 'css/purple-text.css',
 ]
 
 # A list of paths that contain custom static files (such as style sheets or
