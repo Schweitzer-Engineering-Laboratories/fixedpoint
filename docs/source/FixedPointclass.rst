@@ -14,21 +14,21 @@ The **FixedPoint** Class
 * :ref:`Initialization Methods <FixedPoint_initialization>`
 * :ref:`FixedPoint Properties <FixedPoint_properties_rw>`
 
-    * :ref:`Read/Write Properties <FixedPoint_properties_rw>`
-    * :ref:`Read Only Properties <FixedPoint_properties_r>`
+  * :ref:`Read/Write Properties <FixedPoint_properties_rw>`
+  * :ref:`Read Only Properties <FixedPoint_properties_r>`
 
 * :ref:`Operators <FixedPoint_arithmeticoperators>`
 
-    * :ref:`Binary Operators <FixedPoint_arithmeticoperators>`
-    * :ref:`Comparison Operators <FixedPoint_comparisonoperators>`
-    * :ref:`Bitwise Operators <FixedPoint_bitwiseoperators>`
-    * :ref:`Unary Operators <FixedPoint_unaryoperators>`
+  * :ref:`Binary Operators <FixedPoint_arithmeticoperators>`
+  * :ref:`Comparison Operators <FixedPoint_comparisonoperators>`
+  * :ref:`Bitwise Operators <FixedPoint_bitwiseoperators>`
+  * :ref:`Unary Operators <FixedPoint_unaryoperators>`
 
 * :ref:`Built-in Function Support <FixedPoint_builtinfunctions>`
 * :ref:`Bit Resizing Methods <FixedPoint_bitresizing>`
 
-    * :ref:`Rounding Methods <FixedPoint_roundingmethods>`
-    * :ref:`Overflow Handling Methods <FixedPoint_overflowhandling>`
+  * :ref:`Rounding Methods <FixedPoint_roundingmethods>`
+  * :ref:`Overflow Handling Methods <FixedPoint_overflowhandling>`
 
 * :ref:`Context Management <FixedPoint_contextmanagement>`
 * :ref:`Bit Iteration <FixedPoint_iteration>`

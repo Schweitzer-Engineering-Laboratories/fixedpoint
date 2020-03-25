@@ -66,6 +66,8 @@ Alternatively, when tests are run, nose will number them on the printout. Once
 they're numbered (which is recorded in `tests/.noseids`), you can simply
 execute `test.bat <test_number>`.
 
+Run only previously failed tests with `test.bat --failed`.
+
 ### MATLAB Stimulus
 
 MATLAB is used to generate stimulus for some tests. Versions __R2018a__ and
@@ -93,6 +95,12 @@ binary files and have a `.stim` extension.
         * Programming Language
 * Make sure documentation builds and is up to date
     * Update `docs/source/conf.py` with new version/release
+* Create/update the changelog and add
+  [versionadded](https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-versionadded),
+  [versionchanged](https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-versionchanged),
+  [deprecated](https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-versionchanged), or
+  [seealso](https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-seealso)
+  directives in the documentation where appropriate.
 * Create a wheel: `py setup.py sdist bdist_wheel`
 * Deploy to PyPI: `py -m twine upload -repository-url https://upload.pypi.org/legacy/ dist/*`
 

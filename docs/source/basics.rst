@@ -25,12 +25,9 @@ A :class:`~fixedpoint.FixedPoint` object consists of:
 Q Format
 *******************************************************************************
 
-..  warning::
-    It is important to understand the Q format utilized by :mod:`fixedpoint`
-    because there are various formats in use throughout the industry.
-
-The :mod:`fixedpoint` module utilizes the "Q-format" notation specified by
-ARM in :download:`DUI 0066G <_static/DUI0066G.pdf>` (see §4.7.9). That is:
+The :mod:`fixedpoint` module utilizes the
+`"Q-format notation" <https://en.wikipedia.org/w/index.php?title=Q_(number_format)&oldid=943486607>`_
+to describe the word length and binary point position:
 
 * **Qm.n** represents a signed fixed point number with m integer bits and n
   fractional bits (that is, m + n total bits). The most significant bit has
@@ -38,12 +35,6 @@ ARM in :download:`DUI 0066G <_static/DUI0066G.pdf>` (see §4.7.9). That is:
 * **UQm.n** represents an unsigned fixed point number with m integer bits and n
   fractional bits (that is, m + n total bits). The most significant bit has
   a positive weight.
-
-..  note::
-
-    DUI 0066G specifies the Q format as *Qn.m* with *n* being the integer bit
-    width and *m* being the fractional bit width. However, the
-    :mod:`fixedpoint` module reverses these symbols as indicated above.
 
 Furthermore:
 
@@ -54,6 +45,15 @@ Furthermore:
 * **n** can be 0 as long as total word length is positive.
 
 Any deviation from the above specifications constitutes an invalid Q format.
+
+..  warning::
+
+    Some notations reverse *m* and *n*. Some notations use *A* and *U* to
+    represent signed and unsinged numbers, respectively. Some notations do not
+    include the sign bit in the integer bits.
+
+    It is important to understand the Q format utilized by :mod:`fixedpoint`
+    because there are various formats in use throughout the industry.
 
 ..  _range:
 
