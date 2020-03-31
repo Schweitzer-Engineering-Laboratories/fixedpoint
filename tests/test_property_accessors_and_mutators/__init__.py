@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.8
 # Copyright 2020, Schweitzer Engineering Laboratories, Inc
 # SEL Confidential
 import random
@@ -518,10 +518,10 @@ def test_n():
         x.n = 1.0
 
 @tools.setup(progress_bar=False)
-def test_str_base():
+def test_str_base_property():
     """Verify `str_base` property/mutator
     """
-    errmsg = 'Invalid str_base setting: %d\\.'
+    errmsg = r"Invalid str_base setting: '%d'\."
     x = uut.FixedPoint(random.random())
     for base in range(20):
         if base in uut.properties.StrConv.keys():
@@ -534,7 +534,7 @@ def test_str_base():
                 x.str_base = base
 
 @tools.setup(progress_bar=False)
-def test_overflow_alert():
+def test_overflow_alert_property():
     """Verify `overflow_alert` property/mutator
     """
     random.shuffle(testvec := (
@@ -557,7 +557,7 @@ def test_overflow_alert():
                 x.overflow_alert = value.name
 
 @tools.setup(progress_bar=False)
-def test_implicit_cast_alert():
+def test_implicit_cast_alert_property():
     """Verify `implicit_cast_alert` property/mutator
     """
     random.shuffle(testvec := (
@@ -580,7 +580,7 @@ def test_implicit_cast_alert():
                 x.implicit_cast_alert = value.name
 
 @tools.setup(progress_bar=False)
-def test_mismatch_alert():
+def test_mismatch_alert_property():
     """Verify `mismatch_alert` property/mutator
     """
     random.shuffle(testvec := (
@@ -603,7 +603,7 @@ def test_mismatch_alert():
                 x.mismatch_alert = value.name
 
 @tools.setup(progress_bar=False)
-def test_rounding():
+def test_rounding_property():
     """Verify `rounding` property/mutator
     """
     random.shuffle(testvec := (
@@ -626,7 +626,7 @@ def test_rounding():
                 x.rounding = value.name
 
 @tools.setup(progress_bar=False)
-def test_overflow():
+def test_overflow_property():
     """Verify `overflow` property/mutator
     """
     random.shuffle(testvec := (

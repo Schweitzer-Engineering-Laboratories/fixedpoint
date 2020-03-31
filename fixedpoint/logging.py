@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """FixedPoint logging facilities."""
 import sys
 import pathlib

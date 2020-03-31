@@ -6,6 +6,7 @@ description of this file
 import pathlib
 import doctest
 import os
+import re
 
 _thisdir = pathlib.Path(__file__).parent
 _sourcedir = _thisdir
@@ -14,20 +15,47 @@ _fixedpointdir = _rootdir / 'fixedpoint'
 
 # -- Project information ------------------------------------------------------
 
-# The documented project's name.
 project = 'fixedpoint'
-
-# A copyright statement in the style '2008, Author Name'.
 copyright = '2019-2020, Schweitzer Engineering Laboratories, Inc.'
-
-# The author name(s) of the document.
 author = 'Zack Sheffield'
+
 
 # The full project version, used as the replacement for |release| and e.g. in
 # the HTML templates. For example, for the Python documentation, this may be
 # something like 2.6.0rc1. If you don't need the separation provided between
 # version and release, just set them both to the same value.
-version = release = '1.0.0b'
+def get_version_release():
+    """Retrieve the version from fixedpoint/__init__.py.
+
+    The version is stored in one place in this repository, and since the
+    version can't be retrieved by the fixedpoint module during installation
+    (e.g., pip install fixedpoint), it will hold the master copy.
+    """
+    src = _fixedpointdir / '__init__.py'
+    # https://www.python.org/dev/peps/pep-0440/#version-scheme
+    # https://regex101.com/r/Ly7O1x/319
+    # See {_root}/readme.md for the Versioning Public API
+    regex = (r"""__version__\s*=\s*['"]{1,3}"""
+             r"(?P<release>(?:0|[1-9])\d*(?:\.(?:0|[1-9]\d*)){2})"
+             r"(?:-(?P<pre>(?P<prel>a|b|c|rc)(?P<pren>(?:0|[1-9])\d*)))?"
+             r"(?:\+(?P<local>[a-z\d]+(?:[-_\.][a-z\d]+)*))?"
+             r"""['"]{1,3}""")
+
+    with open(src) as f:
+        vsrc = re.search(regex, f.read())
+
+    if not vsrc:
+        raise ValueError(f"Invalid __version__ in '{f.name}'.")
+
+    _version = _release = vsrc.group('release')
+    if vsrc.group('pre'):
+        _release += vsrc.group('pre')
+    if vsrc.group('local'):
+        _release += f"+{vsrc.group('local')}"
+    return _version, _release
+
+
+version, release = get_version_release()
 
 # -- General configuration ----------------------------------------------------
 
@@ -290,7 +318,6 @@ html_compact_lists = True
 
 doctest_default_flags = (
     doctest.ELLIPSIS |
-    doctest.IGNORE_EXCEPTION_DETAIL |
     doctest.DONT_ACCEPT_TRUE_FOR_1 |
     0
 )

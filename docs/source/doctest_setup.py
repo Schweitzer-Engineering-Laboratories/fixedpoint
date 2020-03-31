@@ -1,3 +1,4 @@
+import os
 import sys
 import re
 import logging
@@ -40,3 +41,10 @@ def unpatch(patcher):
 fixedpoint.logging.WARNER_CONSOLE_HANDLER.stream = sys.stdout
 fixedpoint.logging.WARNER.removeFilter(alphabetize_mismatches)
 fixedpoint.logging.WARNER.addFilter(alphabetize_mismatches)
+
+# A way to select specific doctests to run
+def should_skip(testname: str) -> bool:
+    """Determines if a test should be skipped."""
+    envvar = os.environ.get('FIXEDPOINTDOCTEST', '')
+    enabled = [x.strip() for x in envvar.split(',;:') if x]
+    return envvar and testname not in enabled

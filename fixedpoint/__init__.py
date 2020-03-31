@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # Copyright (c) 2019-2020, Schweitzer Engineering Laboratories, Inc.
 # All rights reserved.
 #
@@ -24,7 +23,7 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-"""Fixed point arithmetic package."""
+"""Fixed point arithmetic library."""
 __author__ = "Zack Sheffield"
 __copyright__ = "2019-2020, Schweitzer Engineering Laboratories, Inc."
 __license__ = "BSD"
@@ -33,9 +32,11 @@ __credits__ = [
     "Kayden Scott",
     "Jason Graham",
     "Derek Lautenschlager",
+    "Johnny Sim",
 ]
 __maintainer__ = "Zack Sheffield"
 __email__ = "zack_sheffield@selinc.com"
+__version__ = "1.0.0-a3"
 
 from fixedpoint.fixedpoint import *  # noqa # ignore unused imports
 from fixedpoint.functions import *  # noqa # ignore unused imports

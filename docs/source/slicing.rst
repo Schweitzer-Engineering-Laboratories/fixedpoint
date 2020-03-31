@@ -24,6 +24,7 @@ To access a single bit use an integer key. Bits are indexed with the MSb being
 index ``m+n-1`` and the LSb being index 0.
 
 ..  doctest:: slice single bit
+    :skipif: should_skip("slice single bit")
 
     >>> x = FixedPoint('0b001001', signed=0, m=3, n=3, str_base=2)
     >>> bin(x.bits), x.bits[3]
@@ -38,6 +39,7 @@ values are equal. The slice step must be either
   index ``m+n-1``)
 
 ..  doctest:: slice single bit
+    :skipif: should_skip("slice single bit")
 
     >>> x = FixedPoint('0b001000', signed=0, m=3, n=3)
     >>> x.bits[3:3:-1] # the middle '1' with a descending range
@@ -49,6 +51,7 @@ Attempting to access a single bit in this fashion (the slice start and stop
 are equal) without specifying a step results in an error.
 
 ..  doctest:: slice single bit
+    :skipif: should_skip("slice single bit")
 
     >>> x.bits[3:3]
     Traceback (most recent call last):
@@ -64,6 +67,7 @@ To access multiple bits at a time, :class:`slice`\ s are employed. Both
 ascending and descending ranges are supported.
 
 ..  doctest:: multi-bit slicing
+    :skipif: should_skip("multi-bit slicing")
 
     >>> x = FixedPoint(0b0001100, m=7)
     >>> x.bits[3:2] # Access the middle two 1s using a descending range
@@ -79,6 +83,7 @@ When a step is used that is not 1 or -1, or when the start/stop index is
 negative, the slice accesses the bits as if they were a :class:`str`.
 
 ..  doctest:: multi-bit slicing
+    :skipif: should_skip("multi-bit slicing")
 
     >>> x = FixedPoint(0b100_100_100_100)
     >>> x.bits[::3] # Get every 3rd bit starting from the first
@@ -107,6 +112,7 @@ If the portion of the `FixedPoint` bits does not exist (e.g., the sign bit of
 an unsigned number), a :exc:`KeyError` is raised.
 
 ..  doctest:: mappings
+    :skipif: should_skip("mappings")
 
     >>> intonly = signed = FixedPoint("0b1110", 1, 4, 0)
     >>> fraconly = unsigned = FixedPoint("0b0001", 0, 0, 4)
@@ -115,12 +121,12 @@ an unsigned number), a :exc:`KeyError` is raised.
     >>> fraconly.bits['int']
     Traceback (most recent call last):
         ...
-    KeyError: Invalid bit specification 'int' for UQ0.4.
-    <BLANKLINE>
+    KeyError: "Invalid bit specification 'int' for UQ0.4 format."
+
     >>> intonly.bits['n']
     Traceback (most recent call last):
         ...
-    KeyError: Invalid bit specification 'n' for Q4.0.
+    KeyError: "Invalid bit specification 'n' for Q4.0 format."
     >>> signed.bits['sign']
     1
     >>> (-signed).bits['s']
@@ -128,8 +134,8 @@ an unsigned number), a :exc:`KeyError` is raised.
     >>> unsigned.bits['sign']
     Traceback (most recent call last):
         ...
-    KeyError: Invalid bit specification 'sign' for UQ0.4.
-    <BLANKLINE>
+    KeyError: "Invalid bit specification 'sign' for UQ0.4 format."
+
     >>> intonly.bits['msb'], intonly.bits['lsb']
     (1, 0)
     >>> fraconly.bits['msb'], fraconly.bits['lsb']
@@ -139,6 +145,7 @@ When the mappings are uppercased, a :class:`str` type is returned corresponding
 to the binary bits.
 
 ..  doctest:: mappings
+    :skipif: should_skip("mappings")
 
     >>> intonly = signed = FixedPoint("0b1110", 1, 4, 0)
     >>> fraconly = unsigned = FixedPoint("0b0001", 0, 0, 4)
@@ -147,12 +154,12 @@ to the binary bits.
     >>> fraconly.bits['INT']
     Traceback (most recent call last):
         ...
-    KeyError: Invalid bit specification 'INT' for UQ0.4.
-    <BLANKLINE>
+    KeyError: "Invalid bit specification 'INT' for UQ0.4 format."
+
     >>> intonly.bits['N']
     Traceback (most recent call last):
         ...
-    KeyError: Invalid bit specification 'N' for Q4.0.
+    KeyError: "Invalid bit specification 'N' for Q4.0 format."
     >>> signed.bits['SIGN']
     '1'
     >>> (-signed).bits['S']
@@ -160,8 +167,8 @@ to the binary bits.
     >>> unsigned.bits['SIGN']
     Traceback (most recent call last):
         ...
-    KeyError: Invalid bit specification 'SIGN' for UQ0.4.
-    <BLANKLINE>
+    KeyError: "Invalid bit specification 'SIGN' for UQ0.4 format."
+
     >>> intonly.bits['MSB'], intonly.bits['LSB']
     ('1', '0')
     >>> fraconly.bits['MSB'], fraconly.bits['LSB']

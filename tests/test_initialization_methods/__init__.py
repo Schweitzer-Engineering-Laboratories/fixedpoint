@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.8
 # Copyright 2020, Schweitzer Engineering Laboratories, Inc
 # SEL Confidential
 import random
@@ -695,7 +695,7 @@ def test_fromfloat_error():
         x.from_float(13)
 
 @tools.setup(progress_bar=True)
-def test_float():
+def test_float_initialization():
     """Verify FixedPoint(float)
     """
     for test in [
@@ -988,7 +988,7 @@ def test_initint_wrap():
         nose.tools.assert_equal(len(warnings), 0)
 
 @tools.setup(progress_bar=True)
-def test_int():
+def test_int_initialization():
     """Verify FixedPoint(int)
     """
     for test in [

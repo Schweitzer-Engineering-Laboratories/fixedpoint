@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.8
 # Copyright 2020, Schweitzer Engineering Laboratories, Inc
 # SEL Confidential
 import random
@@ -16,7 +16,7 @@ from .. import tools
 from ..test_initialization_methods import nondefault_props_gen
 
 @tools.setup(progress_bar=True)
-def test_resize():
+def test_resize_function():
     """Verify functions.resize
     """
     overflows = [x.name for x in uut.properties.Overflow] + ['']
@@ -73,7 +73,7 @@ def test_resize():
             )
 
 @tools.setup(progress_bar=True)
-def test_trim():
+def test_trim_function():
     """Verify functions.trim
     """
     strip_sn = lambda s: s.split('SN')[-1].lstrip('0123456789]: ')
@@ -134,7 +134,7 @@ def test_trim():
     nose.tools.assert_equal(x.m, 0)
 
 @tools.setup(progress_bar=True)
-def test_convergent():
+def test_convergent_function():
     """Verify functions.convergent
     """
     strip_sn = lambda s: s.split('SN')[-1].lstrip('0123456789]: ')
@@ -649,7 +649,7 @@ def test_down():
             x.round_down(12)
 
 @tools.setup(progress_bar=True)
-def test_keep_msbs():
+def test_keep_msbs_function():
     """Verify functions.keep_msbs
     """
     overflows = [x.name for x in uut.properties.Overflow] + ['']
@@ -711,7 +711,7 @@ def test_keep_msbs():
         uut.functions.keep_msbs(x, -2, -3)
 
 @tools.setup(progress_bar=True)
-def test_keep_lsbs():
+def test_keep_lsbs_function():
     """Verify functions.keep_lsbs
     """
     overflows = [x.name for x in uut.properties.Overflow] + ['']
@@ -788,7 +788,7 @@ def test_keep_lsbs():
     )
 
 @tools.setup(progress_bar=True)
-def test_clamp():
+def test_clamp_function():
     """Verify functions.clamp
     """
     strip_sn = lambda s: s.split('SN')[-1].lstrip('0123456789]: ')
@@ -861,7 +861,7 @@ def test_clamp():
 
 
 @tools.setup(progress_bar=True)
-def test_wrap():
+def test_wrap_function():
     """Verify functions.wrap
     """
     strip_sn = lambda s: s.split('SN')[-1].lstrip('0123456789]: ')

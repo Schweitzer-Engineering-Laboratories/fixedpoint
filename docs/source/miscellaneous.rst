@@ -113,6 +113,7 @@ used.
 Examples taken from the |convolve|_ documentation:
 
 ..  doctest:: numpy.convolve
+    :skipif: should_skip("numpy.convolve")
 
     >>> import numpy as np
     >>> a = [FixedPoint(1), FixedPoint(2), FixedPoint(3)]
@@ -141,6 +142,7 @@ JSON
 ..  class:: fixedpoint.json.JSONDecoder
 
 ..  doctest:: json serialization
+    :skipif: should_skip("json serialization")
 
     >>> from fixedpoint.json import FixedPointEncoder, FixedPointDecoder
     >>> import random, json
@@ -160,11 +162,12 @@ Pickle
 The :mod:`pickle` scheme works out of the box:
 
 ..  doctest:: pickle
+    :skipif: should_skip("pickle")
 
     >>> import random, pickle
     >>> L = 52
     >>> signed = random.randrange(2)
-    >>> m = random.randrange(L)
+    >>> m = random.randrange(signed, L)
     >>> n = L - m
     >>> original = FixedPoint(hex(random.getrandbits(L)), signed, m, n)
     >>> pickled = pickle.dumps(original)

@@ -14,6 +14,46 @@ build your own local documentation:
    the documentation in html format).
 3. View the documentation at `./docs/build/html/index.html`.
 
+## Versioning API
+
+The only direct compatibility between
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html) (SemVer) and
+[PEP 440](https://www.python.org/dev/peps/pep-0440/) (Python's recommended
+approach to identifying versions, supported by PyPI) is a MAJOR.MINOR.PATCH
+scheme. However, through trial and error, the SemVer pre-release syntax
+`X.Y.Z-aN` is accepted by PyPI (indeed, PEP 440
+[Appendix B](https://www.python.org/dev/peps/pep-0440/#appendix-b-parsing-version-strings-with-regular-expressions)
+includes a regex as defined by the [packaging](https://github.com/pypa/packaging/tree/master/packaging)
+project). That is, the PEP 440-compatible `X.Y.ZaN` syntax can be converted to
+the SemVer-compatible `X.Y.Z-aN` syntax (note the extra dash) without penalty,
+and PyPI will still recognize the version. To that end, the following
+versioning identification is used:
+
+**MAJOR**.**MINOR**.**PATCH**\[**-**{**a**|**b**|**rc**}**N**\]\[**+META**\]
+
+* **MAJOR**, **MINOR**, and **PATCH** comply with
+  [SemVer 2.0.0](https://semver.org/spec/v2.0.0.html#semantic-versioning-specification-semver)
+  and are required for *every* release.
+* Pre-releases are optional. If included, it is specified immediately after
+  the PATCH version. A pre-release is prefixed with a `-`, identified as
+  one of the following types, and suffixed with a non-negative version number
+  **N**:
+    * *alpha* (**a**), indicating content unverified through test. There is no
+      commitment that this will escalate to a beta release, release candidate,
+      or final release.
+    * *beta* (**b**), indicating that code is complete and testing is underway.
+    * *release candidate* (**rc**), indicating that code and testing is complete
+      and final preparations are being made for release.
+* Meta data or build data (**META**) is optional. If included, it is specified
+  immediately after the pre-release identifier (if present) or the PATCH version
+  (if no pre-release is specified). Meta data is prefixed with a `+` and
+  complies with both
+  [PEP 440](https://www.python.org/dev/peps/pep-0440/#local-version-identifiers)
+  and [SymVer 2.0.0](https://semver.org/spec/v2.0.0.html#spec-item-10).
+
+Post- and development-releases are not supported. Instead, increment the
+appropriate MAJOR, MINOR, or PATCH version with an alpha release.
+
 ## FixedPoint Development and Testing
 
 The `./tests` folder contains the infrastructure for testing this library.
@@ -24,14 +64,14 @@ organized into the following sections:
 * Initialization methods
 * Property accessors and mutators
 * Operators
-  * Arithmetic operators
-  * Unary operators
-  * Comparisons
+    * Arithmetic operators
+    * Unary operators
+    * Comparisons
 * Context management
 * Built-in functions and type conversion
 * Bit resizing
-  * Rounding
-  * Overflow handling
+    * Rounding
+    * Overflow handling
 * Alerts and error handling
 * Functions
 * Property resolution
@@ -71,7 +111,8 @@ command would be `./test.bat ./tests/test_bit_resizing:test_resize`.
 
 Alternatively, when tests are run, nose will number them on the printout. Once
 they're numbered (which is recorded in `./tests/.noseids`), you can simply
-execute `./test.bat <test_number>`.
+run `./test.bat <test_number>`. To make nose simply number (but not execute)
+tests, run `./test.bat --collect-only`.
 
 Run only previously failed tests with `./test.bat --failed`.
 
@@ -95,21 +136,30 @@ binary files and have a `.stim` extension.
 ## Deployment Checklist
 
 * Make sure unit tests pass and coverage is sufficient.
+* Update copyright dates.
+* Update version in `./fixedpoint/__init__.py` per the
+  [Versioning API](#versioning-api) with the help of
+  [regex101](https://regex101.com/r/Ly7O1x/322).
 * Update `./setup.cfg`; specifically:
-    * [Version](https://setuptools.readthedocs.io/en/latest/setuptools.html#specifying-your-project-s-version)
     * [Classifiers](https://pypi.org/classifiers/), specifically:
         * Development Status
         * Programming Language
+    * python_requires
+    * tests_requires
+    * setup_requires
+    * extras_require
+    * nosetests
 * Make sure documentation builds and is up to date
-    * Update `./docs/source/conf.py` with new [version/release](https://setuptools.readthedocs.io/en/latest/setuptools.html#specifying-your-project-s-version)
 * Create/update the changelog and add
   [versionadded](https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-versionadded),
   [versionchanged](https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-versionchanged),
   [deprecated](https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-versionchanged), or
   [seealso](https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-seealso)
   directives in the documentation where appropriate.
-* Create a wheel: `py setup.py sdist bdist_wheel`
+* Create a wheel: `py setup.py dist`
 * Deploy to PyPI:
-  `py -m twine upload -repository-url https://upload.pypi.org/legacy/ dist/*`
-  * You may need to point to your `.pypirc` file with the `--configuration-file`
-    switch
+  `py -m twine upload --repository-url https://upload.pypi.org/legacy/ dist/*`
+    * Populate your `%HOMEPATH%\\.pypirc` as described
+      [here](https://docs.python.org/3.3/distutils/packageindex.html#pypirc)
+      and you can instead use `py -m twine upload <REPO> dist/*` with `<REPO>`
+      being one of the index-servers.

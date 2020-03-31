@@ -15,6 +15,7 @@ tests/.noseids
 docs/build/*
 docs/source/fixedpoint
 docs/source/LICENSE.rst
+**/some_file
 
 # Virtual Environment Collateral
 pyvenv.cfg

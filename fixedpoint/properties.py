@@ -1,9 +1,7 @@
-#!/usr/bin/env python3
 """FixedPoint property validation and handling."""
 from enum import Enum
 from logging import ERROR, WARNING, DEBUG
-from typing import (Callable, ClassVar, Mapping, NewType, Set, Tuple, Union,
-                    TYPE_CHECKING)
+from typing import (Callable, ClassVar, Mapping, Tuple, Union, TYPE_CHECKING)
 
 __all__ = ('PROPERTIES', 'StrConv', 'StrBase', 'Alert', 'Overflow', 'Rounding',
            'PropertyResolver')
@@ -17,7 +15,7 @@ PROPERTIES = ('str_base', 'mismatch_alert', 'overflow_alert',
 
 StrConv: Mapping[int, Callable[[int], str]] = {2: bin, 8: oct, 10: str, 16: hex}
 StrBase = Enum('str_base',  # type: ignore # (too many arguments)
-               {'bin': 2, 'oct': 8, 'dec': 10, 'hex': 16},
+               {'0b': 2, '0o': 8, ' ': 10, '0x': 16},
                module=__name__, qualname="StrBase")
 
 Alert = Enum('alert',  # type: ignore # (too many arguments)

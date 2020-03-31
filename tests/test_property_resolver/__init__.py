@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.8
 # Copyright 2020, Schweitzer Engineering Laboratories, Inc
 # SEL Confidential
 import random
@@ -14,7 +14,7 @@ from ..init import (
 from .. import tools
 
 @tools.setup(progress_bar=True)
-def test_str_base():
+def test_str_base_resolution():
     """Verify str_base property resolution
     """
     # All possible permutations of mismatch_alerts
@@ -56,7 +56,7 @@ def test_str_base():
                 nose.tools.assert_equal(result, 16)
 
 @tools.setup(progress_bar=True)
-def test_implicit_cast_alert():
+def test_implicit_cast_alert_resolution():
     """Verify implicit_cast_alert property resolution
     """
     # All possible permutations of overflow_alerts and mismatch_alerts
@@ -144,7 +144,7 @@ def test_implicit_cast_alert():
             nose.tools.assert_not_equal(y.implicit_cast_alert, 'warning')
 
 @tools.setup(progress_bar=True)
-def test_mismatch_alert():
+def test_mismatch_alert_resolution():
     """Verify mismatch_alert property resolution
     """
     # All possible permutations of mismatch_alerts
@@ -221,7 +221,7 @@ def test_mismatch_alert():
             nose.tools.assert_not_equal(y.mismatch_alert, 'error')
 
 @tools.setup(progress_bar=True)
-def test_overflow_alert():
+def test_overflow_alert_resolution():
     """Verify overflow_alert property resolution
     """
     # All possible permutations of overflow_alerts and mismatch_alerts
@@ -309,7 +309,7 @@ def test_overflow_alert():
             nose.tools.assert_not_equal(y.overflow_alert, 'error')
 
 @tools.setup(progress_bar=True)
-def test_rounding():
+def test_rounding_resolution():
     """Verify rounding property resolution
     """
     # All possible permutations of roundings and mismatch_alerts
@@ -428,7 +428,7 @@ def test_rounding():
             nose.tools.assert_not_in('nearest', R)
 
 @tools.setup(progress_bar=True)
-def test_overflow():
+def test_overflow_resolution():
     """Verify overflow property resolution
     """
     # All possible permutations of overflows and mismatch_alerts

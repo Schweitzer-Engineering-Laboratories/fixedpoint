@@ -24,6 +24,7 @@ which are 0-padded (if necessary) to the bit length of the :class:`FixedPoint`
 number. No radix is included.
 
 ..  doctest:: str conversion
+    :skipif: should_skip('str conversion')
 
     >>> init = '0b11001'
     >>> b = FixedPoint(init, 1, 3, 2, str_base=2)
@@ -63,6 +64,7 @@ The example below uses a :pyref:`formatted string literal (or f-string)
 <lexical_analysis.html#f-strings>` to further format the output of ``str()``.
 
 ..  doctest:: format "s"
+    :skipif: should_skip('format "s"')
 
     >>> x = FixedPoint(0b1010_0101_1111, str_base=2)
     >>> str(x) # This is the str() output
@@ -78,6 +80,7 @@ The example below uses a :pyref:`formatted string literal (or f-string)
 The same thing can be done using :meth:`str.format`:
 
 ..  doctest:: format "s"
+    :skipif: should_skip('format "s"')
 
     >>> x.str_base = 8 # octal
     >>> '{:-^16s}'.format(x)
@@ -86,6 +89,7 @@ The same thing can be done using :meth:`str.format`:
 or :func:`format`:
 
 .. doctest:: format "s"
+    :skipif: should_skip('format "s"')
 
     >>> x.str_base = 10
     >>> format(x, '~>6s')
@@ -102,6 +106,7 @@ Using the ``format_spec`` ``type`` ``'q'`` allows you to format the
 :attr:`.FixedPoint.qformat` output as a string.
 
 ..  doctest:: format "q"
+    :skipif: should_skip('format "q"')
 
     >>> a = FixedPoint(-12345.678)
     >>> f"{a:q}"
@@ -118,6 +123,7 @@ Using the ``format_spec`` ``type`` ``'b'``, ``'o'``, ``'d'``,
 :class:`int`.
 
 ..  doctest:: format bits
+    :skipif: should_skip('format bits')
 
     >>> a = FixedPoint(0b1111_0000_1011, m=14)
     >>> f"{a:#0{2 + len(a) // 4 + len(a)}_b}" # add 2 for radix, // 4 for seperators
@@ -138,6 +144,7 @@ to format the integer and fractional bits as an :class:`int`. Precede these
 ``'n'``, ``'x'``, or ``'X'``.
 
 ..  doctest:: format integer and fractional
+    :skipif: should_skip('format integer and fractional')
 
     >>> a = FixedPoint('0b11001100', signed=0, m=4, n=5)
     >>> f"{a:#0{a.m+2}bm}.{a:0{a.n}bn}" # Show the binary point
@@ -151,6 +158,7 @@ Using the ``format_spec`` ``type`` ``'e'``, ``'E'``, ``'f'``,
 :class:`FixedPoint` as a :class:`float`.
 
 ..  doctest:: format float
+    :skipif: should_skip('format float')
 
     >>> a = FixedPoint(1.125, rounding='up')
     >>> f"{a:#0{2+a.m}bm}.{a:0{a.n}bn} ==> {a:.3f}"
@@ -167,6 +175,7 @@ Using the ``format_spec`` ``type`` ``'e'``, ``'E'``, ``'f'``,
     specified.
 
 ..  doctest:: format float
+    :skipif: should_skip('format float')
 
     >>> f"{a:.3%}"
     '112.500%'

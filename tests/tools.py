@@ -216,14 +216,13 @@ class MATLAB:
 
         # MATLAB is time consuming. Don't generate new stimulus if it already
         # exists
+        # Don't regenerate stimulus if it already exists
+        if (testdir / f'{test.name}.stim').exists():
+                return
+        cmd = f"{test.name};exit"
         if os.environ.get('FIXEDPOINTGENALL', ''):
             testdir = testdir.parent
             cmd = "gen_data;exit"
-        else:
-            # Don't regenerate stimulus if it already exists
-            if (testdir / f'{test.name}.stim').exists():
-                return
-            cmd = f"{test.name};exit"
 
         # Print status message
         status = "MATLAB running"
@@ -240,7 +239,7 @@ class MATLAB:
                 '-nosplash',
                 '-wait',
                 '-automation',
-                '-sd', str(testdir),
+                '-sd', str(testdir.resolve()),
                 '-r', cmd,
             ],
             env=os.environ,

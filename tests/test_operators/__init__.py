@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.8
 # Copyright 2020, Schweitzer Engineering Laboratories, Inc
 # SEL Confidential
 import random
@@ -197,10 +197,8 @@ def test_subtraction():
             nose.tools.assert_equal(big.qformat, small.qformat)
 
             # __rsub__
-            pos = random.getrandbits(52) * 2**-random.randrange(52)
-            big, small = (pos, small) if pos > small else (small, pos)
             regular = big - small
-            reflected = small - big
+            reflected = float(big) - small
             nose.tools.assert_equal(regular.qformat, reflected.qformat)
 
 @tools.setup(progress_bar=True, require_matlab=True)
@@ -610,7 +608,7 @@ def test_bitwise_xor():
         x ^= 1.0
 
 @tools.setup(progress_bar=True)
-def test_negation():
+def test_negation_operator():
     """Verify unary -
     """
     errmsg = [

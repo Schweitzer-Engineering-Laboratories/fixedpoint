@@ -1,10 +1,8 @@
-@import '../classic.css';
-
-div.example {
-    background-color: #e5ffe5;
-    border: 1px solid #66ff66;
+.example > .admonition-title {
+    background-color: #4dff4d;
 }
 
-.example code {
-    background: #b3ffb3;
+.example.admonition {
+    border: 1px solid #66ff66;
+    background: #ccffcc;/*#e6ffe6;*/
 }

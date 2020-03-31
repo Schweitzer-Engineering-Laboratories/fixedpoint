@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.8
 # Copyright 2020, Schweitzer Engineering Laboratories, Inc
 # SEL Confidential
 import random
@@ -153,7 +153,7 @@ def test_signed_setter():
             nose.tools.assert_not_equals(signed, x.signed)
 
 @tools.setup(progress_bar=True)
-def test_subtraction():
+def test_subtraction_alerts():
     """Verify overflow alerts from unsigned subtraction
     """
     def qrand():
@@ -199,7 +199,7 @@ def test_subtraction():
                 nose.tools.assert_not_equals(float(z), 0.0)
 
 @tools.setup(progress_bar=True)
-def test_negation():
+def test_negation_alerts():
     """Verify overflow alerts from negation
     """
     errfmt = r"Negating 0?[xob]?%s \(%s\) causes overflow\."

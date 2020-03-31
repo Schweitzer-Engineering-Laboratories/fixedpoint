@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.8
 # Copyright 2020, Schweitzer Engineering Laboratories, Inc
 # SEL Confidential
 import random
@@ -29,7 +29,7 @@ def test_abs():
             nose.tools.assert_equal(y, x)
 
 @tools.setup(progress_bar=True)
-def test_int():
+def test_int_cast():
     """Verify __int__
     """
     for init, args, kwargs, _, m, n, bits in nondefault_props_gen():
@@ -37,7 +37,7 @@ def test_int():
         nose.tools.assert_equal(int(x) & (2**m-1), bits >> n)
 
 @tools.setup(progress_bar=True)
-def test_float():
+def test_float_cast():
     """Verify __float__
     """
     for init, _, _, _, _, _, _ in initfloat_gen():

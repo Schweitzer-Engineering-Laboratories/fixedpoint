@@ -1,20 +1,17 @@
-#!/usr/bin/env python3
 """FixedPoint class."""
 import logging
 from math import log2 as _log2, ceil as _ceil
 import sys
 import operator
-from typing import (Any, Callable, cast, ClassVar, Dict, Iterable, List,
-                    Literal, Mapping, Optional, overload, Tuple, Type, TypeVar,
-                    Union)
+from typing import (Any, Callable, cast, ClassVar, Dict, List, Literal,
+                    Mapping, overload, Tuple, Type, TypeVar, Union)
 
-from fixedpoint.properties import (PROPERTIES, StrBase, StrConv, Alert,
-                                   Overflow, Rounding, ResolvedProps,
-                                   PropertyResolver)
+from fixedpoint.properties import (StrBase, StrConv, Alert, Overflow, Rounding,
+                                   ResolvedProps, PropertyResolver)
 from fixedpoint.logging import WARNER, LOGGER
 from fixedpoint.json import DEFAULT_ENCODER, DEFAULT_DECODER
 
-__all__ = 'FixedPoint',
+__all__ = ('FixedPoint',)
 
 FixedPointType = TypeVar("FixedPointType", bound="FixedPoint")
 Numeric = Union[FixedPointType, int, float]
@@ -130,17 +127,15 @@ class FixedPointBits(int):
         # For (example) FixedPoint(-1,1,1,0), x[1:] is an empty string.
         if strret:
             return ret
-        else:
-            return int(ret, 2) if ret else 0
+        return int(ret, 2) if ret else 0
 
 
 class FixedPoint:
     """Fixed point number."""
 
-    __slots__ = ('_bits', '_signed', '_m', '_n', '_str_base',
-                 '_overflow', '_rounding', '_overflow_alert',
-                 '_implicit_cast_alert', '_mismatch_alert',
-                 '__id', '__cmstack', '__context')
+    __slots__ = ('_bits', '_signed', '_m', '_n', '_str_base', '_overflow',
+                 '_rounding', '_overflow_alert', '_implicit_cast_alert',
+                 '_mismatch_alert', '__id', '__cmstack', '__context')
     _RESOLVE: ClassVar[PropertyResolver]  # Resolves properties for new objects
     _SERIAL_NUMBER: ClassVar[int]  # Logging aid
     _bits: int  # Raw bits of the fixed point number
@@ -155,7 +150,7 @@ class FixedPoint:
     _mismatch_alert: Alert  # Property mismatch notification scheme
     __id: Mapping[str, Union[int, Mapping[str, int]]]  # Logging aid
     __cmstack: List[Any]  # Context manager stack
-    __context: Dict[str, Union[bool, int, str]]  # Context manager preloads
+    __context: Dict[str, Union[bool, int, str]]  # Context manager initial vals
 
     def __new__(cls: Type[FixedPointType], init: Union[Numeric, str], /,
                 signed: bool = None, m: int = None, n: int = None, *,
@@ -200,7 +195,7 @@ class FixedPoint:
 
     def __getnewargs__(self: FixedPointType) -> Tuple[str]:
         """Support pickling with positional-only arguments."""
-        return hex(self._bits),
+        return (hex(self._bits),)
 
     ###########################################################################
     # Initialization methods
@@ -312,12 +307,12 @@ class FixedPoint:
                   '-' * 80,
                   init,
                   self.qformat,
-                  self._overflow.name,
-                  self._rounding.name,
-                  self._overflow_alert.name,
-                  self._mismatch_alert.name,
-                  self._implicit_cast_alert.name,
-                  self._str_base.value)
+                  self.overflow,
+                  self.rounding,
+                  self.overflow_alert,
+                  self.mismatch_alert,
+                  self.implicit_cast_alert,
+                  self.str_base)
 
         initialize(init)
         self.trim(trim_m, trim_n)
@@ -362,7 +357,7 @@ class FixedPoint:
 
             # Handle overflow
             if clamp:
-                bits = eval(extreme)
+                bits = getattr(self, f"_{extreme}")
 
         self._bits = bits & self.bitmask
 
@@ -393,7 +388,7 @@ class FixedPoint:
                 if frac == 0.5:
                     bitmask = 0b10
                 self._bits = bits | bitmask
-                getattr(self, f"round_{self._rounding.name}")(n)
+                getattr(self, f"round_{self.rounding}")(n)
             else:
                 self._bits = bits
 
@@ -480,7 +475,7 @@ class FixedPoint:
 
         # Number of integer bits are shrinking, handle overflow
         elif nintbits < 0:
-            getattr(self, self._overflow.name)(nbits)
+            getattr(self, self.overflow)(nbits)
         self._m = int(nbits)
 
     # _________________________________________________________________________
@@ -775,7 +770,7 @@ class FixedPoint:
 
         # Because overflow may occur, make sure the object with the highest
         # priority overflow_alert is used for the warning.
-        warner = self._owarn if props['overflow_alert'] == self._overflow.name \
+        warner = self._owarn if props['overflow_alert'] == self.overflow \
             else subtrahend._owarn
         return self.__class__.__new(*self.__sub(subtrahend,
                                                 cast(str, props['overflow']),
@@ -954,9 +949,7 @@ class FixedPoint:
         # Overflow only occurs if the number is at its max negative
         if overflow := (self._signedint == self._minimum):
             self._owarn("Negating %s%s (%s) causes overflow.",
-                        {16: '0x', 8: '0o', 2: '0b'}.get(self._str_base.value,
-                                                         ''),
-                        self, self.qformat)
+                        self._str_base.name.strip(), self, self.qformat)
 
             self._owarn("Adjusting Q format to Q%d.%d to allow negation.",
                         self._m + 1, self._n)
@@ -1051,7 +1044,7 @@ class FixedPoint:
                     raise AttributeError(f"Invalid FixedPoint attribute "
                                          f"{attr!r}.")
                 # Caller should not try to be accessing any "private" variables
-                elif attr.startswith('_'):
+                if attr.startswith('_'):
                     raise PermissionError(f"Access to {attr!r} is prohibited.")
                 self.__context[f'_{attr}'] = value
         except Exception:
@@ -1155,15 +1148,15 @@ class FixedPoint:
         Use the str_base property to adjust which base to use for this function.
         For str_base of 2, 8, or 16, output is 0-padded to the bit width.
         """
-        ret = StrConv[self._str_base.value](self._bits)
+        ret = StrConv[self.str_base](self._bits)
         # Zero padding
-        if self._str_base.value == 10:
+        if self.str_base == 10:
             return ret
 
         # Remove radix
         ret = ret[2:]
         bits_needed = self._m + self._n
-        nzeros = _ceil(bits_needed / _log2(self._str_base.value))
+        nzeros = _ceil(bits_needed / _log2(self.str_base))
         return ret.zfill(nzeros)
 
     def __format__(self: FixedPointType, spec: str) -> str:
@@ -1199,7 +1192,7 @@ class FixedPoint:
 
     def __repr__(self: FixedPointType) -> str:
         """Python-executable code string, allows for exact reproduction."""
-        str_base = self._str_base.value
+        str_base = self.str_base
         return (
             f"FixedPoint({StrConv[str_base](self._bits)!r}, "
             f"signed={int(self._signed)}, "
@@ -1227,9 +1220,9 @@ class FixedPoint:
         old = self._overflow, self._rounding, self._overflow_alert
         try:
             with self(safe_retain=True,
-                      overflow=overflow or self._overflow.name,
-                      rounding=rounding or self._rounding.name,
-                      overflow_alert=alert or self._overflow_alert.name):
+                      overflow=overflow or self.overflow,
+                      rounding=rounding or self.rounding,
+                      overflow_alert=alert or self.overflow_alert):
                 self.n = n
                 self.m = m
         except Exception:
@@ -1275,7 +1268,7 @@ class FixedPoint:
 
         self._bits >>= (self._n - n)
         self._n = n
-        self._m = int(m)
+        self._m = int(m or n == 0)
         self._bits &= self.bitmask
 
     # _________________________________________________________________________
@@ -1351,14 +1344,11 @@ class FixedPoint:
 
     def round(self: FixedPointType, nfrac: int, /) -> None:
         """Round with the default setting."""
-        getattr(self, f"round_{self._rounding.name}")(nfrac)
+        getattr(self, f"round_{self.rounding}")(nfrac)
 
     def convergent(self: FixedPointType, nfrac: int, /) -> None:
         """Round half to even."""
-        try:
-            self.__rounding_arg_check(nfrac)
-        except Exception:
-            raise
+        self.__rounding_arg_check(nfrac)
 
         m, n, bits = self._m, self._n, self._bits
 
@@ -1411,10 +1401,7 @@ class FixedPoint:
 
     def round_in(self: FixedPointType, nfrac: int, /) -> None:
         """Round towards 0."""
-        try:
-            self.__rounding_arg_check(nfrac)
-        except Exception:
-            raise
+        self.__rounding_arg_check(nfrac)
 
         n, bits = self._n, self._bits
 
@@ -1429,10 +1416,7 @@ class FixedPoint:
 
     def round_out(self: FixedPointType, nfrac: int) -> None:
         """Round half away from zero."""
-        try:
-            self.__rounding_arg_check(nfrac)
-        except Exception:
-            raise
+        self.__rounding_arg_check(nfrac)
 
         m, n, bits = self._m, self._n, self._bits
 
@@ -1469,10 +1453,7 @@ class FixedPoint:
 
     def round_nearest(self: FixedPointType, nfrac: int, /) -> None:
         """Round half up."""
-        try:
-            self.__rounding_arg_check(nfrac)
-        except Exception:
-            raise
+        self.__rounding_arg_check(nfrac)
 
         m, n, bits = self._m, self._n, self._bits
 
@@ -1507,17 +1488,13 @@ class FixedPoint:
 
     def round_up(self: FixedPointType, nfrac: int, /) -> None:
         """Round towards infinity."""
-        try:
-            self.__rounding_arg_check(nfrac)
-        except Exception:
-            raise
+        self.__rounding_arg_check(nfrac)
 
         m, n, bits = self._m, self._n, self._bits
 
         # Truncate bits
         num_bits_truncated = n - nfrac
         truncated_bits = bits & (2**num_bits_truncated - 1)
-        tie_threshold = 1 << (num_bits_truncated - 1)
         bits >>= num_bits_truncated
         n = nfrac
         maximum = 2**(m - bool(self._signed) + n) - 1
@@ -1545,10 +1522,7 @@ class FixedPoint:
 
     def round_down(self: FixedPointType, nfrac: int, /) -> None:
         """Round towards negative infinity."""
-        try:
-            self.__rounding_arg_check(nfrac)
-        except Exception:
-            raise
+        self.__rounding_arg_check(nfrac)
 
         self._bits >>= self._n - nfrac
         self._n = nfrac
@@ -1572,12 +1546,12 @@ class FixedPoint:
 
         old = self._overflow, self._overflow_alert
         with self(safe_retain=True,
-                  overflow=overflow or self._overflow.name,
-                  overflow_alert=alert or self._overflow_alert.name):
+                  overflow=overflow or self.overflow,
+                  overflow_alert=alert or self.overflow_alert):
             # Move the binary point but keep the same bits
             self._m, self._n = m, self._m + self._n - m
             # Now round off unwanted bits
-            func = getattr(self, f'round_{rounding or self._rounding.name}')
+            func = getattr(self, f'round_{rounding or self.rounding}')
             func(n)
             # If execution gets here, rounding did not cause an exception.
             # Revert the local overflow and overflow_alert properties back.
@@ -1656,7 +1630,7 @@ class FixedPoint:
         if signedint != (tmp := self._signedint):
 
             # Change local alert setting
-            olvl = self._overflow_alert.name
+            olvl = self.overflow_alert
             self._overflow_alert = Alert[alert or olvl]
 
             # Warn on overflows
@@ -1697,7 +1671,7 @@ class FixedPoint:
         signedint -= bits & (signed * 2**(length - 1))
 
         # Change local alert setting
-        olvl = self._overflow_alert.name
+        olvl = self.overflow_alert
         self._overflow_alert = Alert[alert or olvl]
 
         # Warn on overflows
@@ -1706,7 +1680,7 @@ class FixedPoint:
             # Warn on overflows
             try:
                 self._owarn("Overflow in format %s.", self.qformat)
-                clamp = (overflow or self._overflow.name) == 'clamp'
+                clamp = (overflow or self.overflow) == 'clamp'
                 self._owarn("%s %s.", 'Clamped to' if clamp else 'Wrapped',
                             'minimum' if tmp < 0 else 'maximum')
 
@@ -1718,7 +1692,7 @@ class FixedPoint:
         # Move the binary point but keep the same bits
         self._m, self._n = self._m + self._n - n, n
         # Now use the preferred method to remove unwanted bits
-        func = getattr(self, overflow or self._overflow.name)
+        func = getattr(self, overflow or self.overflow)
         # The alert has already been issued if needed, handle overflow silently.
         func(m, 'ignore')
         # Revert back to the original alert level
@@ -1818,8 +1792,7 @@ class FixedPoint:
     @staticmethod
     def min_n(val: Union[int, float], /) -> int:
         """Calculate minimum fractional bit width."""
-        def recursive(val: Union[int, float], lo: int = 0,
-                      hi: int = _MAXEXPONENT) -> int:
+        def recursive(val: Union[int, float], lo: int, hi: int) -> int:
             # Recursive binary search; fast but overflow-prone
             try:
                 if lo + 1 == hi:

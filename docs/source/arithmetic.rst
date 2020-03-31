@@ -45,6 +45,7 @@ Unsigned
 ===============================================================================
 
 ..  doctest:: unsigned addition
+    :skipif: should_skip("unsigned addition")
 
     >>> x = FixedPoint(14, signed=0, m=8, n=4)
     >>> y = FixedPoint(6, signed=0, m=3, n=5)
@@ -59,6 +60,7 @@ Signed
 ===============================================================================
 
 ..  doctest:: signed addition
+    :skipif: should_skip("signed addition")
 
     >>> x = FixedPoint(-4, signed=1, m=4, n=4)
     >>> y = FixedPoint(3, signed=1, m=3, n=5)
@@ -73,10 +75,12 @@ Mixed Signedness
 ===============================================================================
 
 ..  testsetup:: mixed signedness addition
+    :skipif: should_skip("mixed signedness addition")
 
     reset_sn()
 
 ..  doctest:: mixed signedness addition
+    :skipif: should_skip("mixed signedness addition")
 
     >>> s = FixedPoint(-4.375, signed=1, m=4, n=4)
     >>> u = FixedPoint(3 + 2**-5, signed=0, m=3, n=5)
@@ -101,6 +105,7 @@ For example, summing 64 **Q18.0** numbers will grow at maximum
 bits.
 
 ..  testcode:: addition example - accumulator
+    :skipif: should_skip("addition example - accumulator")
 
     from fixedpoint import FixedPoint
 
@@ -119,6 +124,7 @@ clamped to the maximum negative value. Note that ``accum.overflow_alert`` was
 set to ``'error'``, thus we would have been informed had overflow occurred.
 
 ..  testoutput:: addition example - accumulator
+    :skipif: should_skip("addition example - accumulator")
 
     -8388608 in Q24.0 is
     0b1000_0000_0000_0000_0000_0000
@@ -167,10 +173,12 @@ Unsigned
 ===============================================================================
 
 ..  testsetup:: unsigned subtraction
+    :skipif: should_skip("unsigned subtraction")
 
     reset_sn()
 
 ..  doctest:: unsigned subtraction
+    :skipif: should_skip("unsigned subtraction")
 
     >>> x = FixedPoint(14, signed=0, m=8, n=4)
     >>> y = FixedPoint(6, signed=0, m=3, n=5)
@@ -186,6 +194,7 @@ Unsigned
 Overflow occurs when subtrahend > minuend.
 
 ..  doctest:: unsigned subtraction
+    :skipif: should_skip("unsigned subtraction")
 
     >>> q_presub = y.qformat
     >>> y.overflow_alert = 'warning'
@@ -206,6 +215,7 @@ Signed
 ===============================================================================
 
 ..  doctest:: signed subtraction
+    :skipif: should_skip("signed subtraction")
 
     >>> x = FixedPoint(250 + 2**-6, signed=1)
     >>> y = FixedPoint(-13 - 2**-8, signed=1)
@@ -220,6 +230,7 @@ Signed
     263.01953125
 
 ..  doctest:: signed subtraction
+    :skipif: should_skip("signed subtraction")
 
     >>> b = y - x
     >>> print(f'  {y:q}\n- {x:q}\n------\n {b:q}')
@@ -239,10 +250,12 @@ Mixed Signedness
 ===============================================================================
 
 ..  testsetup:: mixed signedness subtraction
+    :skipif: should_skip("mixed signedness subtraction")
 
     reset_sn()
 
 ..  doctest:: mixed signedness subtraction
+    :skipif: should_skip("mixed signedness subtraction")
 
     >>> s = FixedPoint(1, 1, 2)
     >>> u = FixedPoint(1, 0, 2)
@@ -266,6 +279,7 @@ bit growth. Use :meth:`~.FixedPoint.clamp` or :meth:`~.FixedPoint.wrap` to
 revert back to the original Q format if needed.
 
 ..  doctest:: mixed signedness subtraction
+    :skipif: should_skip("mixed signedness subtraction")
 
     >>> y = s - u
     WARNING [SN1]: Non-matching rounding behaviors ['convergent', 'nearest'].
@@ -319,6 +333,7 @@ Unsigned
 ===============================================================================
 
 ..  doctest:: unsigned multiplication
+    :skipif: should_skip("unsigned multiplication")
 
     >>> x = FixedPoint(10, n=2)
     >>> y = FixedPoint(29, n=7)
@@ -333,6 +348,7 @@ Signed
 ===============================================================================
 
 ..  doctest:: signed multiplication
+    :skipif: should_skip("signed multiplication")
 
     >>> x = FixedPoint(-4, signed=1, n=8)
     >>> y = FixedPoint(2.5, signed=1)
@@ -351,6 +367,7 @@ Mixed Signedness
 ===============================================================================
 
 ..  doctest:: mixed signedness multiplication
+    :skipif: should_skip("mixed signedness multiplication")
 
     >>> s = FixedPoint("0b1000", signed=1, m=3, n=1, rounding='nearest')
     >>> u = FixedPoint("0b11", signed=0, m=2, n=0)
@@ -389,6 +406,7 @@ exponents are supported.
     +-----------------+---------------+-----------------+--------------------------+
 
 ..  doctest:: exponentiation
+    :skipif: should_skip("exponentiation")
 
     >>> x = FixedPoint(1.5)
     >>> y = FixedPoint(-1.5)
@@ -405,7 +423,7 @@ exponents are supported.
     >>> 2**x # not allowed
     Traceback (most recent call last):
         ...
-    TypeError: unsupported operand type(s) for **: 'int' and 'FixedPoint'
+    TypeError: unsupported operand type(s) for ** or pow(): 'int' and 'FixedPoint'
 
     >>> a = x**4
     >>> x.qformat, float(a), a.qformat
@@ -429,10 +447,12 @@ is achieved using the negation operator on negative numbers, thus the same
 behavior applies to unary negation and absolute value.
 
 ..  testsetup:: negation and absolute value
+    :skipif: should_skip("negation and absolute value")
 
     reset_sn()
 
 ..  doctest:: negation and absolute value
+    :skipif: should_skip("negation and absolute value")
 
     >>> x = FixedPoint(-4, m=10, overflow_alert='warning', str_base=2)
     >>> float(y := -x)
@@ -446,6 +466,7 @@ issued, and the Q format of the result has an integer bit width one more than
 the original `FixedPoint` (as long as ``overflow_alert`` is not ``'error'``).
 
 ..  doctest:: negation and absolute value
+    :skipif: should_skip("negation and absolute value")
 
     >>> y.qformat
     'Q10.0'
@@ -472,10 +493,12 @@ error. Negating an unsigned number should be intentional. The preferred method
 is by use of the context manager:
 
 ..  testsetup:: unsigned negation
+    :skipif: should_skip("unsigned negation")
 
     reset_sn()
 
 ..  doctest:: unsigned negation
+    :skipif: should_skip("unsigned negation")
 
     >>> x = FixedPoint(3, signed=0)
     >>> xx = abs(x)
@@ -484,7 +507,7 @@ is by use of the context manager:
     >>> -x
     Traceback (most recent call last):
         ...
-    FixedPointError: [SN1] Unsigned numbers can't be negated.
+    fixedpoint.FixedPointError: Unsigned numbers cannot be negated.
 
     >>> with x(m=x.m + 1, signed=1): # Increase integer bit width for sign
     ...     y = -x
@@ -506,6 +529,7 @@ Left Shift
 Shifting bits left will cause MSbs to be lost. 0s are shifted into the LSb.
 
 ..  doctest:: left shift
+    :skipif: should_skip("left shift")
 
     >>> x = FixedPoint('0b111000', 0, 3, 3, str_base=2)
     >>> str(x << 2)
@@ -515,6 +539,7 @@ To shift bits left and *not* lose bits, instead multiply the number by
 2\ :sup:`n`\ , where *n* is the number of bits to shift.
 
 ..  doctest:: left shift
+    :skipif: should_skip("left shift")
 
     >>> float(x) * 2**4
     112.0
@@ -531,6 +556,7 @@ For signed numbers, the value of the bits shifted in is the MSb. For unsigned
 numbers, 0s are shifted into the MSb.
 
 ..  doctest:: left shift
+    :skipif: should_skip("left shift")
 
     >>> str(x << -2) # unsigned shift
     '001110'
@@ -547,6 +573,7 @@ Shifting bits right will cause LSbs to be lost. 0s are shifted into the MSb for
 unsigned numbers. Sign bits are shifted into the MSb for signed numbers.
 
 ..  doctest:: right shift
+    :skipif: should_skip("right shift")
 
     >>> notsigned = FixedPoint('0b111000', 0, 3, 3, str_base=2)
     >>> signedneg = FixedPoint('0b111000', 1, 3, 3, str_base=2)
@@ -563,6 +590,7 @@ If the number of bits to shift is negative, a left shift is performed instead.
 0s are shifted into the LSb.
 
 ..  doctest:: right shift
+    :skipif: should_skip("right shift")
 
     >>> print(f"{notsigned >> -2!s}\n{signedpos >> -2!s}\n{signedneg >> -2!s}")
     100000
@@ -570,6 +598,7 @@ If the number of bits to shift is negative, a left shift is performed instead.
     100000
 
 ..  doctest:: right shift
+    :skipif: should_skip("right shift")
 
     >>> x = FixedPoint(1, m=3)
     >>> 2**-3 # Desired numerical value
@@ -594,6 +623,7 @@ another :class:`FixedPoint`. In the latter case, the operand on the left will
 be the :ref:`Q format <Q_Format>` of the returned value.
 
 ..  doctest:: bitwise 2 FixedPoints
+    :skipif: should_skip("bitwise 2 FixedPoints")
 
     >>> from operator import and_, or_, xor
     >>> def operate(left, op, right):
@@ -632,6 +662,7 @@ When using an :obj:`int` as an operand, the operation is performed on the
 :attr:`.FixedPoint.bits` attribute, and not the numerical value.
 
 ..  doctest:: bitwise with int
+    :skipif: should_skip("bitwise with int")
 
     >>> x = FixedPoint('0b100011', 1, 3, 3, str_base=2)
     >>> str(a := 7 & x)
@@ -643,6 +674,7 @@ When using an :obj:`int` as an operand, the operation is performed on the
 The order of  the operands is irrelevant.
 
 ..  doctest:: bitwise with int
+    :skipif: should_skip("bitwise with int")
 
     >>> str(b1 := x ^ 0b110000)
     '010011'
@@ -657,6 +689,7 @@ The integer is masked to the the number of bits in the `FixedPoint` before
 performing the operation.
 
 ..  doctest:: bitwise with int
+    :skipif: should_skip("bitwise with int")
 
     >>> b1 |= 0b11111111111111111111101100 # (only the left len(b1) bits are used)
     >>> str(b1), float(b1)
@@ -671,6 +704,7 @@ Use the unary inversion operator ``~`` (see :meth:`.FixedPoint.__invert__`) to
 perform bitwise inversion.
 
 ..  doctest:: bitwise inversion
+    :skipif: should_skip("bitwise inversion")
 
     >>> x = FixedPoint(0xAAAA)
     >>> hex(~x)

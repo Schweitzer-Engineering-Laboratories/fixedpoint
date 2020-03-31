@@ -31,6 +31,7 @@ Use the :pyref:`with statement <compound_stmts.html#with>` to generate a scope
 in which changes to the original object can be undone:
 
 ..  doctest:: context manager - basic
+    :skipif: should_skip("context manager - basic")
 
     >>> from fixedpoint import FixedPoint
     >>> x = FixedPoint(1/9, signed=1)
@@ -63,6 +64,7 @@ context exit. These properties include:
 Even the value can be changed with :doc:`arithmetic` or :ref:`initializers`.
 
 ..  doctest:: context manager - basic
+    :skipif: should_skip("context manager - basic")
 
     >>> float(x)
     0.1111111111111111
@@ -79,7 +81,13 @@ New `FixedPoint`\ s generated inside the context manager are valid and available
 outside of the context. This is useful for temporarily overriding properties.
 You can also rename a variable if desired.
 
+..  testsetup:: context manager - basic
+    :skipif: should_skip("context manager - basic")
+
+    reset_sn()
+
 ..  doctest:: context manager - basic
+    :skipif: should_skip("context manager - basic")
 
     >>> x = FixedPoint(0.2)
     >>> y = FixedPoint(0.7)
@@ -89,7 +97,7 @@ You can also rename a variable if desired.
     >>> z = x - y
     Traceback (most recent call last):
         ...
-    FixedPointOverflowError: [SN1] Unsigned subtraction causes overflow.
+    fixedpoint.FixedPointOverflowError: [SN3] Unsigned subtraction causes overflow.
 
     >>> with x as xtmp, y as ytmp:
     ...    xtmp.m, ytmp.m = 1, 1
@@ -104,6 +112,7 @@ You can also rename a variable if desired.
 Context managers can be nested:
 
 ..  doctest:: context manager - basic
+    :skipif: should_skip("context manager - basic")
 
     >>> def nest(x):
     ...     print(f'0) {x.rounding=}')
@@ -135,18 +144,25 @@ In addition to saving off the current context of `FixedPoint` objects, the
 :pyref:`with statement <compound_stmts.html#with>` can also initialize the new
 context for you. Given ``x``, ``y``, and ``z`` below,
 
+..  testsetup:: context manager - initialization
+    :skipif: should_skip("context manager - initialization")
+
+    reset_sn()
+
 ..  doctest:: context manager - initialization
+    :skipif: should_skip("context manager - initialization")
 
     >>> x = FixedPoint(-1)
     >>> y = FixedPoint(1, mismatch_alert='error')
     >>> z = x + y
     Traceback (most recent call last):
         ...
-    MismatchError: Non-matching mismatch_alert behaviors ['error', 'warning'].
+    fixedpoint.MismatchError: [SN2] Non-matching mismatch_alert behaviors ['warning', 'error'].
 
 the following two code blocks accomplish the same goal:
 
 .. doctest:: context manager - initialization
+    :skipif: should_skip("context manager - initialization")
 
     >>> with x, y:
     ...     x.rounding = 'nearest'
@@ -156,6 +172,7 @@ the following two code blocks accomplish the same goal:
     0.0
 
 .. doctest:: context manager - initialization
+    :skipif: should_skip("context manager - initialization")
 
     >>> with x(rounding='nearest', mismatch_alert='error'):
     ...     z = x + y
@@ -168,6 +185,7 @@ the context manager. All initilization arguments must be keyworded. The
 preferred.
 
 ..  doctest:: context manager - initialization
+    :skipif: should_skip("context manager - initialization")
 
     >>> xprop = {'rounding': 'nearest', 'mismatch_alert': 'warning'}
     >>> yprop = {'mismatch_alert': 'warning'}
@@ -185,7 +203,13 @@ Context initialization also supports a ``safe_retain`` keyword that, when
 ``True``, will not restore the original :class:`FixedPoint` context as long as
 no exceptions occur.
 
+..  testsetup:: context manager - safe_retain
+    :skipif: should_skip("context manager - safe_retain")
+
+    reset_sn()
+
 ..  doctest:: context manager - safe_retain
+    :skipif: should_skip("context manager - safe_retain")
 
     >>> x = FixedPoint(3, str_base=10)
     >>> x.qformat
@@ -195,7 +219,7 @@ no exceptions occur.
     ...     x.signed = True
     Traceback (most recent call last):
         ...
-    FixedPointOverflowError: Changing signedness on 3 causes overflow.
+    fixedpoint.FixedPointOverflowError: [SN1] Changing signedness on 3 causes overflow.
 
     >>> x.signed, x.qformat # Changes were not retained because of exception
     (False, 'UQ2.0')

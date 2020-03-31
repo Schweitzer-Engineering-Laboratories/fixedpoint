@@ -1,7 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.8
 # Copyright 2020, Schweitzer Engineering Laboratories, Inc
 # SEL Confidential
 import os
+import sys
 import doctest
 import subprocess
 import random
@@ -266,7 +267,7 @@ def test_typing():
     # if you want to do this yourself.
     mypy = subprocess.run(
         [
-            'py', '-m', 'mypy',
+            sys.executable, '-m', 'mypy',
             "--config-file", str(config_file.resolve()),
             # "--html-report", str(html_report.resolve()),
             "--cache-dir", str(cache_dir.resolve()),
@@ -286,11 +287,10 @@ def test_typing():
     # if not imprecise:
     #     with open(css, 'a') as f:
     #         f.write("\n.line-imprecise {\n    background-color: #ffa;\n}\n")
-    # UTLOG.info("mypy-html.css path: %s\n\nSTDERR:\n%s\n\nSTDOUT:\n%s\n",
-    #     css,
-    #     mypy.stderr.decode().replace('\r\n', '\n'),
-    #     mypy.stdout.decode().replace('\r\n', '\n'), **LOGID
-    # )
+    UTLOG.info("STDERR:\n%s\n\nSTDOUT:\n%s\n",
+               mypy.stderr.decode().replace('\r\n', '\n'),
+               mypy.stdout.decode().replace('\r\n', '\n'), **LOGID
+    )
 
     if mypy.returncode:
         raise subprocess.SubprocessError('mypy typing failure; '

@@ -35,6 +35,7 @@ Table of Contents
 
     initialization
     arithmetic
+    resizing
     context-management
     slicing
     string-formatting

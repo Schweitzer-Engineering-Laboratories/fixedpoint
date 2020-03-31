@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.8
 # Copyright 2020, Schweitzer Engineering Laboratories, Inc
 # SEL Confidential
 import random
@@ -142,7 +142,7 @@ def test_trim():
         # If there are any fractional bits, LSB should be 1 unless there are
         # no integer bits
         if x.n and x.m != 0:
-            nose.tools.assert_equal(x['lsb'], 1)
+            nose.tools.assert_equal(x.bits['lsb'], 1)
         x.n = xx.n
 
         # Integer bit trimming
@@ -151,10 +151,10 @@ def test_trim():
         # Signed negative numbers must retain a '1' msb; signed positive
         # numbers must retain a '0' msb
         if x.signed:
-            nose.tools.assert_equal(x['msb'], xx['msb'])
+            nose.tools.assert_equal(x.bits['msb'], xx.bits['msb'])
         # Unsigned numbers will have a '1' msb if there are any integer bits
         elif x.m:
-            nose.tools.assert_equal(x['msb'], 1)
+            nose.tools.assert_equal(x.bits['msb'], 1)
         # Further trimming should result in overflow
         if x.m and not (x.m == 1 and x.signed):
             errmsg = errfmt % ('' if x.signed else 'U', x.m, xx.n)
@@ -168,14 +168,14 @@ def test_trim():
         # If there are any fractional bits, LSB should be 1 unless there are
         # no integer bits
         if x.n and x.m != 0:
-            nose.tools.assert_equal(x['lsb'], 1)
+            nose.tools.assert_equal(x.bits['lsb'], 1)
         # Signed negative numbers must retain a '1' msb; signed positive
         # numbers must retain a '0' msb
         if x.signed:
-            nose.tools.assert_equal(x['msb'], xx['msb'])
+            nose.tools.assert_equal(x.bits['msb'], xx.bits['msb'])
         # Unsigned numbers will have a '1' msb if there are any integer bits
         elif x.m:
-            nose.tools.assert_equal(x['msb'], 1)
+            nose.tools.assert_equal(x.bits['msb'], 1)
         # Further trimming should result in overflow
         if x.m and not (x.m == 1 and x.signed):
             errmsg = errfmt % ('' if x.signed else 'U', x.m, x.n)

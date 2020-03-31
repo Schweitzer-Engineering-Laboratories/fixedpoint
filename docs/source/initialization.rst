@@ -13,7 +13,13 @@ Initializing from a float
 When initializing a :class:`FixedPoint` from a `float`, *signed*, *m*, and *n*
 are all optional. Thus the following object instantiations are all valid:
 
+..  testsetup:: initializing from a float
+    :skipif: should_skip("initializing from a float")
+
+    reset_sn()
+
 ..  doctest:: initializing from a float
+    :skipif: should_skip("initializing from a float")
 
     >>> from fixedpoint import FixedPoint
     >>> from math import pi
@@ -40,6 +46,7 @@ are all optional. Thus the following object instantiations are all valid:
     certain circumstances. See The Python Tutorial on the |float issues|.
 
 ..  doctest:: initializing from a float
+    :skipif: should_skip("initializing from a float")
 
     >>> print(format(pi, '.60f'))
     3.141592653589793115997963468544185161590576171875000000000000
@@ -66,7 +73,13 @@ never require fractional bits). When *m* is left unspecified,
 represent *init*, and after rounding occurs, :meth:`~.FixedPoint.trim` is used
 to remove superfluous leading 0s or sign-extended 1s.
 
+..  testsetup:: initializing from an int
+    :skipif: should_skip("initializing from an int")
+
+    reset_sn()
+
 ..  doctest:: initializing from an int
+    :skipif: should_skip("initializing from an int")
 
     >>> a = FixedPoint(-2**1000, n=42) # No signed or m argument
     >>> a.qformat
@@ -97,7 +110,13 @@ Initializing from a str
 When initializing a `FixedPoint` from a `str`, *signed*, *m*, and *n* are
 required:
 
+..  testsetup:: initializing from a str
+    :skipif: should_skip("initializing from a str")
+
+    reset_sn()
+
 ..  doctest:: initializing from a str
+    :skipif: should_skip("initializing from a str")
 
     >>> a = FixedPoint('1') # no Q format
     Traceback (most recent call last):
@@ -109,20 +128,22 @@ FixedPoint :attr:`~.FixedPoint.bits`. This means that leading 0s are ignored
 and not included in the total number of bits:
 
 ..  doctest:: initializing from a str
+    :skipif: should_skip("initializing from a str")
 
     >>> a = FixedPoint('0x00000000000000001', signed=0, m=1, n=0) # Leading 0s
-    >>> int(a)
+    >>> a.bits
     1
 
 Rounding and overflow handling are not performed. If the bits of the string
 exceed the specified :ref:`Q format <Q_Format>`, a :exc:`ValueError` is raised.
 
 ..  doctest:: initializing from a str
+    :skipif: should_skip("initializing from a str")
 
     >>> a = FixedPoint('0xFF', 0, 1, 1) # A whole bunch of extra bits
     Traceback (most recent call last):
        ...
-    ValueError: Superfluous bits detected in string literal '0xFF' for Q2.0 format.
+    ValueError: Superfluous bits detected in string literal '0xFF' for UQ1.1 format.
 
 ``int(init, 0)`` is used to internally convert the *str* to *int*, thus the
 ``0b``, ``0o``, or ``0x`` radix is required for binary, octal, or hexadecimal
@@ -134,6 +155,7 @@ number. This means if you have an integer that represents some known/desired
 generating random stimulus:
 
 ..  doctest:: initializing from a str
+    :skipif: should_skip("initializing from a str")
 
     >>> import random
     >>> random.seed(42)
@@ -149,6 +171,7 @@ generating random stimulus:
     interest should be masked before converting to a string.
 
 ..  doctest:: initializing from a str
+    :skipif: should_skip("initializing from a str")
 
     >>> x = FixedPoint('-1', signed=1, m=2, n=0)
     Traceback (most recent call last):
@@ -170,7 +193,13 @@ Initializing from another FixedPoint
 When initializing a `FixedPoint` from another `FixedPoint`, only *init* is
 required; all other arguments are ignored.
 
+..  testsetup:: initializing from a FixedPoint
+    :skipif: should_skip("initializing from a FixedPoint")
+
+    reset_sn()
+
 ..  doctest:: initializing from a FixedPoint
+    :skipif: should_skip("initializing from a FixedPoint")
 
     >>> x = FixedPoint(2**-5)
     >>> x.qformat
@@ -186,10 +215,16 @@ required; all other arguments are ignored.
 Initializing from other types
 *******************************************************************************
 
-When *init* is not a(n) `float`, `int`, `str`, or `FixedPoint`), the object
+When *init* is not a(n) `float`, `int`, `str`, or `FixedPoint`, the object
 is cast to a *float*.
 
+..  testsetup:: initializing from other types
+    :skipif: should_skip("initializing from other types")
+
+    reset_sn()
+
 ..  doctest:: initializing from other types
+    :skipif: should_skip("initializing from other types")
 
     >>> from decimal import Decimal
     >>> x = Decimal(1) / Decimal(10)
@@ -198,20 +233,16 @@ is cast to a *float*.
     >>> y == z
     True
 
-If this fails, a `TypeError` is raised.
+If this fails, a :exc:`TypeError` is raised.
 
 ..  doctest:: initializing from other types
+    :skipif: should_skip("initializing from other types")
 
-    >>> class NotFloatable:
-    ...    def __init__(self, value):
-    ...        self.value = value
-    ...    def __float__(self):
-    ...        return NotImplemented
-
-    >>> FixedPoint(NotFloatable(13))
+    >>> file = open('some_file', 'a')
+    >>> FixedPoint(file)
     Traceback (most recent call last):
         ...
-    TypeError: Unsupported type <class '__main__.NotFloatable'>; cannot convert to float.
+    TypeError: Unsupported type <class '_io.TextIOWrapper'>; cannot convert to float.
 
 ..  _initializers:
 
@@ -234,12 +265,15 @@ validated.
     because it will differ between each call.
 
 ..  testsetup:: constructor vs initializer
+    :skipif: should_skip("constructor vs initializer")
 
+    reset_sn()
     oldprint = print
     def print(*args, **kwargs):
         pass
 
 ..  testcode:: constructor vs initializer
+    :skipif: should_skip("constructor vs initializer")
 
     from timeit import timeit
 
@@ -287,6 +321,7 @@ fractional bits):
     Initializer: 0.7997059000000002
 
 ..  testcleanup:: constructor vs initializer
+    :skipif: should_skip("constructor vs initializer")
 
     print = oldprint
 
@@ -296,6 +331,7 @@ properties. Create a single instance, and then just use the initializer in
 each loop iteration:
 
 ..  testcode:: using an initializer in a loop
+    :skipif: should_skip("using an initializer in a loop")
 
     from fixedpoint import FixedPoint
     import random
@@ -340,15 +376,17 @@ Clamping limits the number to the most maximum or minimum value
 default ``'error'`` to allow processing to continue.
 
 ..  testsetup:: clamp
+    :skipif: should_skip("clamp")
 
     reset_sn()
 
 ..  doctest:: clamp
+    :skipif: should_skip("clamp")
 
     >>> x = FixedPoint(999, 0, 4, 1, overflow='clamp')
     Traceback (most recent call last):
         ...
-    FixedPointOverflowError: [SN1] Integer 999 overflows in UQ4.1 format.
+    fixedpoint.FixedPointOverflowError: [SN1] Integer 999 overflows in UQ4.1 format.
 
     >>> try:
     ...     x
@@ -387,10 +425,12 @@ This is also called 2's complement overflow. The
 default ``'error'`` to allow processing to continue.
 
 ..  testsetup:: wrap
+    :skipif: should_skip("wrap")
 
     reset_sn()
 
 ..  doctest:: wrap
+    :skipif: should_skip("wrap")
 
     >>> big = 0b11000 # Needs 5 (unsigned) integer bits to represent
     >>> big
@@ -398,7 +438,7 @@ default ``'error'`` to allow processing to continue.
     >>> x = FixedPoint(big, 0, 4, 1, overflow='wrap')
     Traceback (most recent call last):
         ...
-    FixedPointOverflowError: [SN1] Integer 24 overflows in UQ4.1 format.
+    fixedpoint.FixedPointOverflowError: [SN1] Integer 24 overflows in UQ4.1 format.
 
     >>> try:
     ...     x
@@ -437,8 +477,8 @@ default ``'error'`` to allow processing to continue.
 Rounding occurs when non-zero fractional bits must be removed from the number.
 The :class:`FixedPoint` class offers several forms of rounding:
 
-* ``'convergent'``
-* ``'nearest'``
+* ``'convergent'`` (default for signed numbers if not specified)
+* ``'nearest'`` (default for unsigned numbers if not specified)
 * ``'out'``
 * ``'in'``
 * ``'up'``
@@ -509,7 +549,13 @@ Rounds toward the nearest even value in the case of a tie, otherwise rounds to
 the nearest value. :wikirounding:`Wikipedia <Round_half_to_even>` outlines the
 pros and cons of convergent rounding.
 
+..  testsetup:: convergent round
+    :skipif: should_skip("convergent round")
+
+    reset_sn()
+
 ..  doctest:: convergent round
+    :skipif: should_skip("convergent round")
 
     >>> x = FixedPoint(0, signed=1, m=4, n=0, rounding='convergent')
     >>> for sign in [+1, -1]:
@@ -534,6 +580,7 @@ bits completely. However, the same principal applies to round to a non-zero
 number of fractional bits:
 
 ..  doctest:: convergent round
+    :skipif: should_skip("convergent round")
 
     >>> x = FixedPoint('0b100110', 1, 2, 4, rounding='convergent')
     >>> float(x), x.qformat
@@ -546,7 +593,13 @@ number of fractional bits:
 Because convergent rounding can cause the value of the number to increase, it
 can cause overflow.
 
+..  testsetup:: convergent round with overflow
+    :skipif: should_skip("convergent round with overflow")
+
+    reset_sn()
+
 ..  doctest:: convergent round with overflow
+    :skipif: should_skip("convergent round with overflow")
 
     >>> x = FixedPoint(3.5)
     >>> x.qformat # Can be represented with 2 integer bits
@@ -554,7 +607,7 @@ can cause overflow.
     >>> y = FixedPoint(3.5, m=2, n=0, rounding='convergent')
     Traceback (most recent call last):
         ...
-    FixedPointOverflowError: [SN1] 3.500000e+00 overflows in UQ2.0 format.
+    fixedpoint.FixedPointOverflowError: [SN2] 3.500000e+00 overflows in UQ2.0 format.
 
     >>> z = FixedPoint(3.5, n=0, rounding='convergent') # Requires 4 integer bits
     >>> float(z), z.qformat
@@ -569,7 +622,13 @@ Rounds toward :math:`+\infty` in the case of a tie, otherwise rounds to the
 nearest value. :wikirounding:`Wikipedia <Round_half_up>` describes this widely
 used rounding method.
 
+..  testsetup:: round nearest
+    :skipif: should_skip("round nearest")
+
+    reset_sn()
+
 ..  doctest:: round nearest
+    :skipif: should_skip("round nearest")
 
     >>> x = FixedPoint(0, signed=1, m=4, n=0, rounding='nearest')
     >>> for sign in [+1, -1]:
@@ -594,6 +653,7 @@ bits completely. However, the same principal applies to round to a non-zero
 number of fractional bits:
 
 ..  doctest:: round nearest
+    :skipif: should_skip("round nearest")
 
     >>> x = FixedPoint('0b100110', 1, 2, 4, rounding='nearest')
     >>> x.qformat, float(x)
@@ -606,14 +666,20 @@ number of fractional bits:
 Because rounding to nearest can cause the value of the number to increase, it
 can cause overflow.
 
+..  testsetup:: round nearest with overflow
+    :skipif: should_skip("round nearest with overflow")
+
+    reset_sn()
+
 ..  doctest:: round nearest with overflow
+    :skipif: should_skip("round nearest with overflow")
 
     >>> FixedPoint(15.5).qformat # Can be represented with 4 integer bits
     'UQ4.1'
     >>> x = FixedPoint(15.5, m=4, n=0, rounding='nearest')
     Traceback (most recent call last):
         ...
-    FixedPointOverflowError: [SN1] 15.500000e+00 overflows in UQ4.0 format.
+    fixedpoint.FixedPointOverflowError: [SN2] 1.550000e+01 overflows in UQ4.0 format.
 
     >>> z = FixedPoint(15.5, n=0, rounding='nearest') # Requires 5 integer bits
     >>> float(z), z.qformat
@@ -629,6 +695,7 @@ Rounds away from 0 in the case of a tie, otherwise rounds to the nearest value.
 cons of rounding away from 0.
 
 ..  doctest:: round out
+    :skipif: should_skip("round out")
 
     >>> x = FixedPoint(0, signed=1, m=4, n=0, rounding='out')
     >>> for sign in [+1, -1]:
@@ -653,6 +720,7 @@ bits completely. However, the same principal applies to round to a non-zero
 number of fractional bits:
 
 ..  doctest:: round out
+    :skipif: should_skip("round out")
 
     >>> x = FixedPoint('0b100110', 1, 2, 4, rounding='out')
     >>> x.qformat, float(x)
@@ -665,16 +733,22 @@ number of fractional bits:
 Because rounding away from 0 causes the magnitude of the number to increase, it
 can cause overflow.
 
+..  testsetup:: round out with overflow
+    :skipif: should_skip("round out with overflow")
+
+    reset_sn()
+
 ..  doctest:: round out with overflow
+    :skipif: should_skip("round out with overflow")
 
     >>> FixedPoint(15.5).qformat # Can be represented with 4 integer bits
     'UQ4.1'
-    >>> x = FixedPoint(15.5, m=4, n=0, rounding='nearest')
+    >>> x = FixedPoint(15.5, m=4, n=0, rounding='out')
     Traceback (most recent call last):
         ...
-    FixedPointOverflowError: [SN1] 15.500000e+00 overflows in UQ4.0 format.
+    fixedpoint.FixedPointOverflowError: [SN2] 1.550000e+01 overflows in UQ4.0 format.
 
-    >>> z = FixedPoint(15.5, n=0, rounding='nearest') # Requires 5 integer bits
+    >>> z = FixedPoint(15.5, n=0, rounding='out') # Requires 5 integer bits
     >>> float(z), z.qformat
     (16.0, 'UQ5.0')
 
@@ -695,6 +769,7 @@ Rounds unconditionally toward 0.
     scheme for bit truncation.
 
 ..  doctest:: round in
+    :skipif: should_skip("round in")
 
     >>> x = FixedPoint(0, signed=1, m=4, n=0, rounding='in')
     >>> for sign in [+1, -1]:
@@ -719,6 +794,7 @@ bits completely. However, the same principal applies to round to a non-zero
 number of fractional bits:
 
 ..  doctest:: round in
+    :skipif: should_skip("round in")
 
     >>> x = FixedPoint('0b100110', 0, 2, 4, rounding='in')
     >>> x.qformat, float(x)
@@ -739,6 +815,7 @@ cause overflow.
 Rounds unconditionally toward :math:`+\infty`.
 
 ..  doctest:: round up
+    :skipif: should_skip("round up")
 
     >>> x = FixedPoint(0, signed=1, m=4, n=0, rounding='up')
     >>> for sign in [+1, -1]:
@@ -763,6 +840,7 @@ bits completely. However, the same principal applies to round to a non-zero
 number of fractional bits:
 
 ..  doctest:: round up
+    :skipif: should_skip("round up")
 
     >>> x = FixedPoint('0b100110', 0, 2, 4, rounding='up')
     >>> x.qformat, float(x)
@@ -775,14 +853,20 @@ number of fractional bits:
 Because rounding up can cause the number's magnitude to increase, it can cause
 overflow.
 
+..  testsetup:: round up with overflow
+    :skipif: should_skip("round up with overflow")
+
+    reset_sn()
+
 ..  doctest:: round up with overflow
+    :skipif: should_skip("round up with overflow")
 
     >>> FixedPoint(15.5).qformat # Can be represented with 4 integer bits
     'UQ4.1'
     >>> x = FixedPoint(15.5, m=4, n=0, rounding='up')
     Traceback (most recent call last):
         ...
-    FixedPointOverflowError: [SN1] 15.500000e+00 overflows in UQ4.0 format.
+    fixedpoint.FixedPointOverflowError: [SN2] 1.550000e+01 overflows in UQ4.0 format.
 
     >>> z = FixedPoint(15.5, n=0, rounding='up') # Requires 5 integer bits
     >>> float(z), z.qformat
@@ -806,6 +890,7 @@ Rounds unconditionally toward :math:`-\infty`.
     rounding scheme to achieve decimal digit truncation.
 
 ..  doctest:: round down
+    :skipif: should_skip("round down")
 
     >>> x = FixedPoint(0, signed=1, m=4, n=0, rounding='down')
     >>> for sign in [+1, -1]:
@@ -830,6 +915,7 @@ bits completely. However, the same principal applies to round to a non-zero
 number of fractional bits:
 
 ..  doctest:: round down
+    :skipif: should_skip("round down")
 
     >>> x = FixedPoint('0b100110', 0, 2, 4, rounding='down')
     >>> x.qformat, float(x)
@@ -854,6 +940,8 @@ operation should be halted when overflow occurs. You can choose from:
 * ``'error'`` (default if not specified)
 * ``'warning'``
 * ``'ignore'``
+
+..  _overflow_causes:
 
 Overflow can occur in the following scenarios:
 
@@ -886,12 +974,18 @@ overflow is expected.
 In this notification scheme, overflow causes execution to halt and a
 :exc:`FixedPointOverflowError` is raised.
 
+..  testsetup:: overflow_alert error
+    :skipif: should_skip("overflow_alert error")
+
+    reset_sn()
+
 ..  doctest:: overflow_alert error
+    :skipif: should_skip("overflow_alert error")
 
     >>> x = FixedPoint(999, 0, 1, 0, overflow_alert='error')
     Traceback (most recent call last):
         ...
-    FixedPointOverflowError: [SN1] 999 overflows in UQ1.0 format.
+    fixedpoint.FixedPointOverflowError: [SN1] Integer 999 overflows in UQ1.0 format.
 
     >>> x # Does not exist because of the exception!
     Traceback (most recent call last):
@@ -906,10 +1000,12 @@ continue. The first warning informs you of the overflow cause, the second
 warning informs you of the action taken.
 
 ..  testsetup:: overflow_alert warning
+    :skipif: should_skip("overflow_alert warning")
 
     reset_sn()
 
 ..  doctest:: overflow_alert warning
+    :skipif: should_skip("overflow_alert warning")
 
     >>> x = FixedPoint(999, 0, 1, 0, overflow='clamp', overflow_alert='warning')
     WARNING [SN1]: Integer 999 overflows in UQ1.0 format.
@@ -929,10 +1025,12 @@ warning informs you of the action taken.
 In this notification scheme, overflow is handled silently.
 
 ..  testsetup:: overflow_alert ignore
+    :skipif: should_skip("overflow_alert ignore")
 
     reset_sn()
 
 ..  doctest:: overflow_alert ignore
+    :skipif: should_skip("overflow_alert ignore")
 
     >>> x = FixedPoint(3.75, 0, 2, 1, overflow_alert='ignore')
     >>> float(x), x.clamped
@@ -965,10 +1063,12 @@ For instance, what are the properties of ``c`` below?
     alphabetical order.
 
 ..  testsetup:: mismatch_alert example
+    :skipif: should_skip("mismatch_alert example")
 
     reset_sn()
 
 ..  testcode:: mismatch_alert example
+    :skipif: should_skip("mismatch_alert example")
 
     a = FixedPoint(1,
         overflow='wrap',
@@ -1000,6 +1100,7 @@ resolve property mismatches for the following operations:
 (in case you're curious, the example above produces the following):
 
 ..  testoutput:: mismatch_alert example
+    :skipif: should_skip("mismatch_alert example")
 
     WARNING [SN1]: Non-matching mismatch_alert behaviors ['ignore', 'warning'].
     WARNING [SN1]: Using 'warning'.
@@ -1024,14 +1125,20 @@ resolve property mismatches for the following operations:
 In this notification scheme, the first property mismatch encountered will raise
 a :exc:`MismatchError` exception.
 
+..  testsetup:: mismatch_alert error
+    :skipif: should_skip("mismatch_alert error")
+
+    reset_sn()
+
 ..  doctest:: mismatch_alert error
+    :skipif: should_skip("mismatch_alert error")
 
     >>> a = FixedPoint(-1, rounding='convergent', mismatch_alert='error')
     >>> b = FixedPoint(+1, rounding='nearest', mismatch_alert='error')
-    >>> c = a + b
+    >>> c = a + b  #doctest: +IGNORE_EXCEPTION_DETAIL
     Traceback (most recent call last):
         ...
-    MismatchError: Non-matching rounding behaviors ['convergent', 'nearest'].
+    fixedpoint.MismatchError: [SN1] Non-matching rounding behaviors ['convergent', 'nearest'].
 
     >>> c # Does not exist because of the exception!
     Traceback (most recent call last):
@@ -1045,9 +1152,10 @@ properties the first mismatch encountered in the
 :ref:`resolution order <property_resolution_order>` is the culprit.
 
 ..  doctest:: mismatch_alert error
+    :skipif: should_skip("mismatch_alert error")
 
     >>> a.mismatch_alert = 'ignore' # Now mismatch_alert and rounding don't match
-    >>> d = a + b
+    >>> d = a + b #doctest: +IGNORE_EXCEPTION_DETAIL
     Traceback (most recent call last):
         ...
     MismatchError: Non-matching mismatch_alert behaviors ['error', 'ignore'].
@@ -1057,7 +1165,6 @@ properties the first mismatch encountered in the
         ...
     NameError: name 'd' is not defined
 
-
 ``'warning'``
 ===============================================================================
 
@@ -1066,10 +1173,12 @@ execution will continue. The first warning informs you of the non-matching
 properties, the second informs you of the resolution.
 
 ..  testsetup:: mismatch_alert warning
+    :skipif: should_skip("mismatch_alert warning")
 
     reset_sn()
 
 ..  doctest:: mismatch_alert warning
+    :skipif: should_skip("mismatch_alert warning")
 
     >>> x = FixedPoint(1492)
     >>> y = FixedPoint(x)
@@ -1085,6 +1194,7 @@ Warnings are emitted in the
 :ref:`property resolution order<property_resolution_order>`.
 
 ..  doctest:: mismatch_alert warning
+    :skipif: should_skip("mismatch_alert warning")
 
     >>> y.overflow = 'wrap'
     >>> zz = x + y # Overflow is resolved before rounding
@@ -1104,6 +1214,7 @@ because a new :class:`FixedPoint` is not being created.
     So this is really just for show...
 
 ..  doctest:: mismatch_alert warning
+    :skipif: should_skip("mismatch_alert warning")
 
     >>> import sys, io
     >>> sys.stderr = io.StringIO() # redirect stderr to a string buffer
@@ -1121,6 +1232,7 @@ In this notification scheme, property mismatches are resolved silently.
 The same examples from above are used.
 
 ..  doctest:: mismatch_alert ignore
+    :skipif: should_skip("mismatch_alert ignore")
 
     >>> x = FixedPoint(1492, mismatch_alert='ignore')
     >>> y = FixedPoint(x)
@@ -1174,17 +1286,19 @@ In this notification scheme, numerical error introduced by implicit casting will
 raise an :exc:`ImplicitCastError` exception and operation is halted.
 
 ..  testsetup:: implicit_cast_alert error
+    :skipif: should_skip("implicit_cast_alert error")
 
     patch = patch_min_n(FixedPoint(0.2).n - 1)
     reset_sn()
 
 ..  doctest:: implicit_cast_alert error
+    :skipif: should_skip("implicit_cast_alert error")
 
     >>> a = FixedPoint(3, implicit_cast_alert='error')
     >>> x = a + 0.2
     Traceback (most recent call last):
         ...
-    ImplicitCastError: [SN1] Casting 0.2 to UQ0.53 introduces an error of 5.551115e-17
+    fixedpoint.ImplicitCastError: [SN1] Casting 0.2 to UQ0.53 introduces an error of 5.551115e-17
 
     >>> x # Does not exist because of the exception!
     Traceback (most recent call last):
@@ -1192,6 +1306,7 @@ raise an :exc:`ImplicitCastError` exception and operation is halted.
     NameError: name 'x' is not defined
 
 ..  testcleanup:: implicit_cast_alert error
+    :skipif: should_skip("implicit_cast_alert error")
 
     unpatch(patch)
 
@@ -1202,11 +1317,13 @@ In this notification scheme, numerical error introduced by implicit casting will
 emit a warning, but the operation is still carried out.
 
 ..  testsetup:: implicit_cast_alert warning
+    :skipif: should_skip("implicit_cast_alert warning")
 
     patch = patch_min_n(FixedPoint(0.3).n - 1)
     reset_sn()
 
 ..  doctest:: implicit_cast_alert warning
+    :skipif: should_skip("implicit_cast_alert warning")
 
     >>> a = FixedPoint(1969, implicit_cast_alert='warning')
     >>> a -= 0.3
@@ -1216,6 +1333,7 @@ emit a warning, but the operation is still carried out.
     1968.700000000000045474735088646411895751953125000000000000000000
 
 ..  testcleanup:: implicit_cast_alert warning
+    :skipif: should_skip("implicit_cast_alert warning")
 
     unpatch(patch)
 
@@ -1226,6 +1344,7 @@ In this notification scheme, numerical error introduced by implicit casting is
 ignored.
 
 ..  doctest:: implicit_cast_alert ignore
+    :skipif: should_skip("implicit_cast_alert ignore")
 
     >>> a = FixedPoint(-10.5, implicit_cast_alert='ignore')
     >>> x = 0.2 * a
@@ -1259,6 +1378,7 @@ string is sign extended (or 0-padded) to the bit width of the object, and does
 not include the radix.
 
 ..  doctest:: str_base 16
+    :skipif: should_skip("str_base 16")
 
     >>> x = FixedPoint(0xdeadbeef, 1, 64, 8) # str_base=16 by default
     >>> str(x)
@@ -1274,6 +1394,7 @@ string is not sign extended to the bit width of the object, and does not
 include a radix. This is equivalent to ``str(FixedPoint(...).bits)``.
 
 ..  doctest:: str_base 10
+    :skipif: should_skip("str_base 10")
 
     >>> x = FixedPoint(2, 1, 8, str_base=10)
     >>> str(x) # no zero-padding occurs
@@ -1293,6 +1414,7 @@ string is sign extended (or 0-padded) to the bit width of the object, and does
 not include the radix.
 
 ..  doctest:: str_base 8
+    :skipif: should_skip("str_base 8")
 
     >>> x = FixedPoint(1/3, 1, 1, str_base=8)
     >>> x.qformat, str(x)
@@ -1308,6 +1430,7 @@ string is sign extended (or 0-padded) to the bit width of the object, and does
 not include the radix.
 
 ..  doctest:: str_base 2
+    :skipif: should_skip("str_base 2")
 
     >>> x = FixedPoint(-1 + 2**-40, str_base=2)
     >>> x.qformat, str(x)

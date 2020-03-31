@@ -33,6 +33,8 @@ The **PropertyResolver** Class
             if |mismatch_alert| properties of all *args* do not match, and
             any *args*' |mismatch_alert| property setting is ``'error'``.
 
+        ..  _highest priority:
+
         When all *args* have equivalent |mismatch_alert| properties, that value
         is returned. Otherwise, the priority of resolution order is:
 
@@ -41,7 +43,7 @@ The **PropertyResolver** Class
             #. ``'ignore'``
 
         If there are mismatches in the |mismatch_alert| properties, then an
-        alert is issued according to the highest priority :meth:`mismatch_alert`
+        alert is issued according to the highest priority *mismatch_alert*
         setting in *args*.
 
     ..  method:: overflow(*args)
@@ -68,7 +70,7 @@ The **PropertyResolver** Class
             #. ``'wrap'``
 
         If there are mismatches in the |mismatch_alert| properties, then an
-        alert is issued according to the highest priority :meth:`mismatch_alert`
+        alert is issued according to the `highest priority`_ *mismatch_alert*
         setting in *args*.
 
     ..  method:: rounding(*args)
@@ -91,7 +93,7 @@ The **PropertyResolver** Class
         When all *args* have equivalent |rounding| properties, that value is
         returned. Otherwise, the priority of resolution order is:
 
-            #. ``'convergent'`` (for if any *args* are signed, otherwise
+            #. ``'convergent'`` (if any *args* are signed, otherwise
                ``'nearest'``)
             #. ``'nearest'`` (if no *args* are signed, otherwise
                ``'convergent'``)
@@ -101,7 +103,7 @@ The **PropertyResolver** Class
             #. ``'up'``
 
         If there are mismatches in the |mismatch_alert| properties, then an
-        alert is issued according to the highest priority :meth:`mismatch_alert`
+        alert is issued according to the `highest priority`_ *mismatch_alert*
         setting in *args*.
 
     ..  method:: overflow_alert(*args)
@@ -128,7 +130,7 @@ The **PropertyResolver** Class
             #. ``'ignore'``
 
         If there are mismatches in the |overflow_alert| properties, then an
-        alert is issued according to the highest priority :meth:`mismatch_alert`
+        alert is issued according to the `highest priority`_ *mismatch_alert*
         setting in *args*.
 
     ..  method:: implicit_cast_alert(*args)
@@ -155,8 +157,8 @@ The **PropertyResolver** Class
             #. ``'ignore'``
 
         If there are mismatches in the |implicit_cast_alert|
-        properties, then an alert is issued according to the highest priority
-        :meth:`mismatch_alert` setting in *args*.
+        properties, then an alert is issued according to the `highest priority`_
+        *mismatch_alert* setting in *args*.
 
     ..  method:: str_base(*args)
 

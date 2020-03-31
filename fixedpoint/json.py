@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """JSON encoding and decoding classes."""
 import json
 from typing import Any, List, TYPE_CHECKING, cast

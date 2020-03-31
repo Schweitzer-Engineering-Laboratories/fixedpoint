@@ -31,7 +31,6 @@ The **FixedPoint** Class
   * :ref:`Overflow Handling Methods <FixedPoint_overflowhandling>`
 
 * :ref:`Context Management <FixedPoint_contextmanagement>`
-* :ref:`Bit Iteration <FixedPoint_iteration>`
 * :ref:`Logging <FixedPoint_logging>`
 * :ref:`Utility Functions <FixedPoint_utils>`
 * :ref:`Property Resolution <property_resolution_order>`
@@ -442,7 +441,7 @@ The **FixedPoint** Class
             Bits of the fixed point number.
 
         This is the read-only bits of the :class:`FixedPoint`, stored as an
-        integer. This is read only.
+        integer.
 
         Indexing, slicing, and mapping is available with the
         :class:`FixedPointBits` class.
@@ -1220,6 +1219,7 @@ The **FixedPoint** Class
         ..  admonition:: Jump to Examples
             :class: example
 
+            * :ref:`Resize <resize>`
             * :ref:`Resize uses the context manager <resize_implementation>`
 
     ..  method:: trim(ints=None, fracs=None)
@@ -1251,6 +1251,11 @@ The **FixedPoint** Class
         *fracs* or *ints*, respectively, to *True*. When left unspecified,
         both integer and fractional bits are trimmed.
 
+        ..  admonition:: Jump to Examples
+            :class: example
+
+            * :ref:`Trim <trim>`
+
     ..  _FixedPoint_roundingmethods:
 
     ..  rubric:: Rounding Methods
@@ -1278,6 +1283,13 @@ The **FixedPoint** Class
         Rounds a copy of the :class:`FixedPoint` using the rounding scheme
         specified by the :attr:`~.FixedPoint.rounding` property setting.
 
+        Refer to :meth:`.FixedPoint.resize` for more details.
+
+        ..  admonition:: Jump to Examples
+            :class: example
+
+            * :ref:`Default Rounding <default_rounding>`
+
     ..  method:: __floor__()
 
         ..  note::
@@ -1291,6 +1303,11 @@ The **FixedPoint** Class
 
         Rounds to the integer closest to :math:`-\infty`, but does not modify
         the fractional bit width.
+
+        ..  admonition:: Jump to Examples
+            :class: example
+
+            * :ref:`math.floor <floor>`
 
     ..  method:: __ceil__()
 
@@ -1312,6 +1329,11 @@ The **FixedPoint** Class
         bits. For values other than 0, this requires :attr:`~.FixedPoint.m` to
         be non-zero.
 
+        ..  admonition:: Jump to Examples
+            :class: example
+
+            * :ref:`math.ceil <ceil>`
+
     ..  method:: __trunc__()
 
         ..  note::
@@ -1326,6 +1348,11 @@ The **FixedPoint** Class
         Rounds to the integer closest to :math:`-\infty`, leaving 0
         fractional bits. If :attr:`~.FixedPoint.m` is 0, it is changed to 1,
         otherwise :attr:`~.FixedPoint.m` is not modified.
+
+        ..  admonition:: Jump to Examples
+            :class: example
+
+            * :ref:`math.trunc <trunc>`
 
     ..  method:: round(n)
 
@@ -1356,6 +1383,7 @@ The **FixedPoint** Class
             :class: example
 
             * :ref:`Numerical examples from initialization <convergent>`
+            * :ref:`rounding_induced_overflow`
 
     ..  method:: round_nearest(n)
 
@@ -1373,6 +1401,7 @@ The **FixedPoint** Class
             :class: example
 
             * :ref:`Numerical examples from initialization <nearest>`
+            * :ref:`rounding_induced_overflow`
 
     ..  method:: round_in(n)
 
@@ -1385,6 +1414,7 @@ The **FixedPoint** Class
             :class: example
 
             * :ref:`Numerical examples from initialization <in>`
+            * :ref:`overflow_safe_rounding`
 
     ..  method:: round_out(n)
 
@@ -1402,6 +1432,7 @@ The **FixedPoint** Class
             :class: example
 
             * :ref:`Numerical examples from initialization <out>`
+            * :ref:`rounding_induced_overflow`
 
     ..  method:: round_down(n)
 
@@ -1415,6 +1446,7 @@ The **FixedPoint** Class
             :class: example
 
             * :ref:`Numerical examples from initialization <down>`
+            * :ref:`overflow_safe_rounding`
 
     ..  method:: round_up(n)
 
@@ -1432,6 +1464,7 @@ The **FixedPoint** Class
             :class: example
 
             * :ref:`Numerical examples from initialization <up>`
+            * :ref:`rounding_induced_overflow`
 
     ..  method:: keep_msbs(m, n, /, rounding=None, overflow=None, alert=None)
 
@@ -1474,6 +1507,11 @@ The **FixedPoint** Class
         arbitrary number of the :class:`FixedPoint`\ 's most significant bits,
         regardless of its current :ref:`Q format <Q_Format>`. The resulting
         :ref:`Q format <Q_Format>` must be valid.
+
+        ..  admonition:: Jump to Examples
+            :class: example
+
+            * :ref:`keep_msbs`
 
     ..  _FixedPoint_overflowhandling:
 
@@ -1574,6 +1612,11 @@ The **FixedPoint** Class
         significant bits, regardless of  its current :ref:`Q format <Q_Format>`.
         The resulting :ref:`Q format <Q_Format>` must be valid.
 
+        ..  admonition:: Jump to Examples
+            :class: example
+
+            * :ref:`keep_lsbs`
+
     ..  _FixedPoint_contextmanagement:
 
     ..  rubric:: Context Management
@@ -1584,7 +1627,8 @@ The **FixedPoint** Class
 
         .. note::
 
-            This is the built-in :pyref:`with statement <compound_stmts.html#with>`.
+            This is the built-in :pyref:`with statement <compound_stmts.html#with>`
+            in conjunction with the ``()`` operator.
 
         :keyword bool safe_retain:
             Set to *True* to retain the changes made within the context as
@@ -1613,11 +1657,6 @@ The **FixedPoint** Class
             if a private or read-only :class:`FixedPoint` property/attribute is
             specified
 
-        ..  note::
-
-            This is the built-in :pyref:`with statement <compound_stmts.html#with>`,
-            in conjunction with the ``(...)`` operator.
-
         While the ``__call__`` method is not typically associated with the
         context manager, the :class:`FixedPoint` class uses this method to
         assign attributes temporarily (or permanently, with appropriate use of
@@ -1631,27 +1670,6 @@ The **FixedPoint** Class
             :class: example
 
             * :doc:`context-management`
-
-    ..  _FixedPoint_iteration:
-
-    ..  method:: __iter__()
-                 __reversed__()
-
-        ..  note::
-
-            This is the built-in :func:`iter` and :func:`reversed` function,
-            which is also utilized in
-            :pytut:`for loop <controlflow.html#for-statements>`
-            iteration.
-
-        :return:
-            A single bit at a time from MSb to LSb (for ``__iter__``) or
-            LSb to MSb (for ``__reversed__``).
-
-        :rtype:
-            int
-
-        Iterate through each bit of the :class:`FixedPoint`.
 
     ..  _FixedPoint_logging:
 
