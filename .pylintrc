@@ -1,0 +1,38 @@
+[MASTER]
+
+jobs=0
+
+[MESSAGES CONTROL]
+
+disable=all
+
+enable=unused-import,
+       try-except-raise,
+       unused-variable,
+       possibly-unused-variable,
+       unused-format-string-key,
+       unused-format-string-argument,
+       fixme,
+       wrong-spelling-in-comment,
+       wrong-spelling-in-docstring
+
+[MISCELLANEOUS]
+
+notes=TODO,
+      FIXME
+
+[REPORTS]
+
+output-format=colorized
+
+reports=no
+
+score=no
+
+[SPELLING]
+
+spelling-dict=
+
+spelling-ignore-words=
+
+spelling-store-unknown-words=no

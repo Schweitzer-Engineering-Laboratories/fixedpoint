@@ -1,0 +1,28 @@
+# Generally unwanted things
+**/__pycache__/*
+**/*.log
+
+# Test Collateral
+tests/**/*.stim
+tests/**/*.txt
+tests/**/*.asv
+tests/COVERAGE/*
+tests/MYPY/*
+tests/.noseids
+.coverage
+
+# Documentation Collateral
+docs/build/*
+docs/source/fixedpoint
+docs/source/LICENSE.rst
+**/some_file
+
+# Virtual Environment Collateral
+pyvenv.cfg
+Lib/*
+Scripts/*
+
+# Build collateral
+build/*
+dist/*
+fixedpoint.egg-info/*
