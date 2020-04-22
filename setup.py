@@ -86,7 +86,7 @@ def get_version() -> str:
 if __name__ == '__main__':
 
     # https://setuptools.readthedocs.io/en/latest/setuptools.html#specifying-values
-    # The file: directive is sandboxed and won’t reach anything outside the
+    # The file: directive is sandboxed and won't reach anything outside the
     # directory containing setup.py. Since long_description.rst is not in the
     # same directory, it is specified here instead of in setup.cfg.
     setuptools.setup(long_description=long_description(),

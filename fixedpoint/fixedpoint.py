@@ -30,6 +30,7 @@ def _sn(__id: Mapping[str, object]) -> int:
 
 class FixedPointBits(int):
     """Allow for slicing and mapping into FixedPoint.bits."""
+
     s: bool
     m: int
     n: int
