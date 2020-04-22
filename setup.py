@@ -77,7 +77,7 @@ def get_version() -> str:
 
     version = vsrc.group('release')
     if vsrc.group('pre'):
-        version += vsrc.group('pre')
+        version += f"-{vsrc.group('pre')}"
     if vsrc.group('local'):
         version += f"+{vsrc.group('local')}"
     return version

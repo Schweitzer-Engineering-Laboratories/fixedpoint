@@ -1,8 +1,10 @@
 ..  todolist::
 
 ###############################################################################
-fixedpoint Package Documentation
+fixedpoint |version| Package Documentation
 ###############################################################################
+
+Release |release|
 
 ..  include:: long_description.rst
 

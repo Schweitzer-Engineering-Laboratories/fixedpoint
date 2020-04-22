@@ -24,10 +24,10 @@ scheme. However, through trial and error, the SemVer pre-release syntax
 `X.Y.Z-aN` is accepted by PyPI (indeed, PEP 440
 [Appendix B](https://www.python.org/dev/peps/pep-0440/#appendix-b-parsing-version-strings-with-regular-expressions)
 includes a regex as defined by the [packaging](https://github.com/pypa/packaging/tree/master/packaging)
-project). That is, the PEP 440-compatible `X.Y.ZaN` syntax can be converted to
-the SemVer-compatible `X.Y.Z-aN` syntax (note the extra dash) without penalty,
-and PyPI will still recognize the version. To that end, the following
-versioning identification is used:
+project that supports this format). That is, the PEP 440-compatible `X.Y.ZaN`
+syntax can be converted to the SemVer-compatible `X.Y.Z-aN` syntax (note the
+extra dash) without penalty, and PyPI will still recognize the version. To that
+end, the following versioning identification is used:
 
 **MAJOR**.**MINOR**.**PATCH**\[**-**{**a**|**b**|**rc**}**N**\]\[**+META**\]
 
@@ -80,41 +80,63 @@ The test modules are titled the more or less the same way the code sections are.
 There is some overlap between tests, but organizing it in such a way guarantees
 that the functionality is tested in the intended manner.
 
-### Running Tests
+### Installing test dependencies
 
-The following modules are required for testing
+`./setup.cfg` shows the test dependencies. There are two ways to install them
+(except for MATLAB, which must be installed separately):
 
-* nose (main test runner)
-* coverage (measures code coverage)
-* mypy (verifies typing)
-* tqdm (progress bar)
-* sphinx (doctests for documentation)
+#### Install test dependencies locally
 
-Run `py ./setup.py nosetests` from the root directory, which installs all
-necessary testing dependencies (except MATLAB), and then runs the entire suite
-of tests.
+Run `python ./setup.py nosetests`, which will install the dependencies in the
+`./.eggs` directory, and then execute the tests using the local dependencies.
+Using this method means
 
-If you already have all the test dependencies, you can run `./test.bat` in the
-root directory to run the entire test suite. `./setup.cfg` has options that are
-used to run nose tests, but you can also supplement `./test.bat` with other
-[nose options](https://nose.readthedocs.io/en/latest/usage.html#options).
+* You don't have to muck up your library with packages you won't ever use again
+* You must run all the tests; you can't pick one or just a few to run
 
-The coverage report can be found at `./tests/COVERAGE/index.html` after the
-tests are run.
+This method is recommended for quick test verification.
 
-#### Common `test.bat` Options
+#### Install test dependencies permanently
 
-To run individual tests, the syntax is
-`./test.bat tests/<test_folder_name>:test_function_name`. For example, to run
-the `test_resize` function from `./tests/test_bit_resizing/__init__.py`, the
-command would be `./test.bat ./tests/test_bit_resizing:test_resize`.
+Run `pip install .[test_dependencies]` which will install all
+test dependencies on your machine for use later. Using this method means
 
-Alternatively, when tests are run, nose will number them on the printout. Once
-they're numbered (which is recorded in `./tests/.noseids`), you can simply
-run `./test.bat <test_number>`. To make nose simply number (but not execute)
-tests, run `./test.bat --collect-only`.
+* You can run individual tests, a handful of tests, or all tests easily
 
-Run only previously failed tests with `./test.bat --failed`.
+This method is recommended if you need to dig in to tests in more detail.
+
+### Running tests
+
+The following commands will run all tests (commands are run from the root
+directory):
+
+* `python ./setup.py nosetests` (see description
+  [above](#install-test-dependencies-locally))
+* `test.bat`
+* `python -m tests`
+
+You can run a specific test with one of the following commands (run from the
+root directory):
+
+* `test.bat tests:test_subtraction` or `python -m tests tests:test_subtraction`
+* `test.bat --collect-only`, followed by the test number to run like
+  `test.bat 42`
+
+Run multiple tests in the same way, placing a space between each test identifier
+(like `tests:test_subtraction` or `42` in the examples above).
+
+You can also append other
+[nose options](https://nose.readthedocs.io/en/latest/usage.html#options) to
+either `test.bat` or `python -m tests` (as shown in the `--collect-only`
+example above)
+
+Run only previously-failed tests with the `--failed` switch.
+
+View the coverage report at `./tests/COVERAGE/index.html` after the tests run
+note that the `cover-erase` option in `./setup.cfg` will erase all coverage data
+between test invocations.
+
+Each test generates a log in the directory it's located in for further analysis.
 
 #### MATLAB Stimulus
 
@@ -125,7 +147,7 @@ work.
 `./tests/tools.py` includes a MATLAB class that is used to generate MATLAB
 stimulus. It requires that MATLAB be in your system path. If this is not the
 case, those tests will be skipped. It does not account for unavailability of
-licenses.
+licenses, nor does it verify the version.
 
 The `tools.MATLAB` class will not regenerate stimulus if it already exists. You
 can either delete the stimulus file to force regeneration, call the script
@@ -148,6 +170,8 @@ binary files and have a `.stim` extension.
     * tests_requires
     * setup_requires
     * extras_require
+        * test_dependencies
+        * docs
     * nosetests
 * Make sure documentation builds and is up to date
 * Create/update the changelog and add
@@ -156,10 +180,10 @@ binary files and have a `.stim` extension.
   [deprecated](https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-versionchanged), or
   [seealso](https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-seealso)
   directives in the documentation where appropriate.
-* Create a wheel: `py setup.py dist`
+* Create a wheel: `py setup.py dist` (an alias for `bdist_wheel sdist`)
 * Deploy to PyPI:
   `py -m twine upload --repository-url https://upload.pypi.org/legacy/ dist/*`
     * Populate your `%HOMEPATH%\\.pypirc` as described
       [here](https://docs.python.org/3.3/distutils/packageindex.html#pypirc)
-      and you can instead use `py -m twine upload <REPO> dist/*` with `<REPO>`
-      being one of the index-servers.
+      and you can instead use `py -m twine upload -r <REPO> dist/*` with
+      `<REPO>` being one of the index-servers.

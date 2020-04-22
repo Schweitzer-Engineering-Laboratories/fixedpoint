@@ -49,7 +49,7 @@ def get_version_release():
 
     _version = _release = vsrc.group('release')
     if vsrc.group('pre'):
-        _release += vsrc.group('pre')
+        _release += f"-{vsrc.group('pre')}"
     if vsrc.group('local'):
         _release += f"+{vsrc.group('local')}"
     return _version, _release

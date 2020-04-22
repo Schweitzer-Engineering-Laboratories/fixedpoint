@@ -521,7 +521,7 @@ def test_n():
 def test_str_base_property():
     """Verify `str_base` property/mutator
     """
-    errmsg = r"Invalid str_base setting: '%d'\."
+    errmsg = r"Invalid str_base setting: %d\."
     x = uut.FixedPoint(random.random())
     for base in range(20):
         if base in uut.properties.StrConv.keys():
