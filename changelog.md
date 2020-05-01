@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog][], and this project adheres to
   will recognize fixedpoint as a typed package.
     * Added py.typed into [fixedpoint](/fixedpoint/) directory
     * Added py.typed as package_data in [setup.cfg](/setup.cfg).
+* Added installation instructions in the documentation.
 
 ## 1.0.0
 
