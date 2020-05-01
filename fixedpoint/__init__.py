@@ -36,7 +36,7 @@ __credits__ = [
 ]
 __maintainer__ = "Zack Sheffield"
 __email__ = "zack_sheffield@selinc.com"
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 from fixedpoint.fixedpoint import *  # noqa # ignore unused imports
 from fixedpoint.functions import *  # noqa # ignore unused imports
