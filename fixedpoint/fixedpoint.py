@@ -676,10 +676,6 @@ class FixedPoint:
         """Unsupported FixedPoint method."""
         return NotImplemented
 
-    # For future reference, in case division is needed:
-    # https://courses.cs.washington.edu/courses/cse467/08au/labs/l5/fp.pdf
-    __floordiv__ = __rfloordiv__ = __ifloordiv__ = __unsupported
-    __truediv__ = __rtruediv__ = __itruediv__ = __unsupported
     __matmul__ = __rmatmul__ = __imatmul__ = __unsupported
     __mod__ = __rmod__ = __imod__ = __unsupported
     __rlshift__ = __rrshift__ = __unsupported
@@ -813,6 +809,58 @@ class FixedPoint:
         other = self.__to_FixedPoint(multiplier)
         self._bits, self._signed, self._m, self._n = self.__mul(other)
         return self
+
+    def __floordiv(numerator: FixedPointType,
+                   denominator: FixedPointType) -> AttrReturn:
+        """Perform division and return attributes of the result.
+        This is the
+        """
+        m: int = numerator._m + denominator._n + 1
+        n: int = numerator._n + denominator._m
+        signed: bool = bool(numerator._signed or denominator._signed)
+
+        bits = int((numerator._signedint << (denominator._n + denominator._m)) // denominator._signedint)
+        return bits & (2**(m + n) - 1), signed, m, n
+
+    def __floordiv__(self: FixedPointType, other: Numeric) -> FixedPointType:
+        denominator, props = self.__to_FixedPoint_resolved(other)
+        return self.__class__.__new(*self.__floordiv(denominator), **props)
+
+    def __ifloordiv__(self: FixedPointType, denominator: Numeric) -> FixedPointType:
+        other = self.__to_FixedPoint(denominator)
+        self._bits, self._signed, self._m, self._n = self.__floordiv(other)
+        return self
+
+    def __rfloordiv__(self: FixedPointType, numerator: Numeric) -> FixedPointType:
+        other = self.__to_FixedPoint(numerator, self._signed)
+        return self.__class__.__new(*other.__floordiv(self, self.overflow,
+                                                      self._owarn),
+                                    self.overflow, self.rounding, self.str_base,
+                                    self.overflow_alert,
+                                    self.implicit_cast_alert,
+                                    self.mismatch_alert)
+
+    # Both division operators use the maximum precision possible - it's up to the user to truncate
+    # the result how they see fit.
+    __truediv = __floordiv
+
+    def __truediv__(self: FixedPointType, other: Numeric) -> FixedPointType:
+        denominator, props = self.__to_FixedPoint_resolved(other)
+        return self.__class__.__new(*self.__truediv(denominator), **props)
+
+    def __itruediv__(self: FixedPointType, denominator: Numeric) -> FixedPointType:
+        other = self.__to_FixedPoint(denominator)
+        self._bits, self._signed, self._m, self._n = self.__truediv(other)
+        return self
+
+    def __rtruediv__(self: FixedPointType, numerator: Numeric) -> FixedPointType:
+        other = self.__to_FixedPoint(numerator, self._signed)
+        return self.__class__.__new(*other.__truediv(self, self.overflow,
+                                                      self._owarn),
+                                    self.overflow, self.rounding, self.str_base,
+                                    self.overflow_alert,
+                                    self.implicit_cast_alert,
+                                    self.mismatch_alert)
 
     def __pow(self: FixedPointType, exponent: int) -> AttrReturn:
         """Perform exponentiation and return attributes of the result."""
