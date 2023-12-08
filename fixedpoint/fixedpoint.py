@@ -814,6 +814,24 @@ class FixedPoint:
         self._bits, self._signed, self._m, self._n = self.__mul(other)
         return self
 
+    def __floordiv(numerator: FixedPointType,
+                   denominator: FixedPointType) -> AttrReturn:
+        """Perform division and return attributes of the result"""
+        m: int = numerator._m + denominator._n + 1
+        n: int = numerator._n + denominator._m
+        signed: bool = bool(numerator._signed or denominator._signed)
+
+        bits = int(((numerator._signedint) << (denominator._n + denominator._m)) // denominator._signedint)
+        return bits & (2**(m + n) - 1), signed, m, n
+
+    def __floordiv__(self: FixedPointType, other: Numeric) -> FixedPointType:
+        denominator, props = self.__to_FixedPoint_resolved(other)
+        return self.__class__.__new(*self.__floordiv(denominator), **props)
+
+    def __truediv__(self: FixedPointType, other: Numeric) -> FixedPointType:
+        denominator, props = self.__to_FixedPoint_resolved(other)
+        return self.__class__.__new(*self.__floordiv(denominator), **props)
+
     def __pow(self: FixedPointType, exponent: int) -> AttrReturn:
         """Perform exponentiation and return attributes of the result."""
         if not (isinstance(exponent, int) and exponent > 0):
